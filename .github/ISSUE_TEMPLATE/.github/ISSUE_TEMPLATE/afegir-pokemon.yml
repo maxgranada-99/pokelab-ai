@@ -1,0 +1,56 @@
+name: "Afegir Pokémon"
+description: "Afegeix un Pokémon a la Pokédex personal"
+title: "[Pokédex] Afegir: "
+labels: ["add-pokemon"]
+body:
+  - type: input
+    id: nom
+    attributes:
+      label: Nom
+      description: "Ex.: Leafeon, Gengar, Typhlosion (Hisui)"
+      placeholder: "Nom del Pokémon"
+    validations:
+      required: true
+
+  - type: input
+    id: joc
+    attributes:
+      label: Joc
+      description: "Ex.: Legends Arceus, Z-A, etc."
+      placeholder: "Nom del joc"
+    validations:
+      required: true
+
+  - type: input
+    id: tipus
+    attributes:
+      label: Tipus (separats per coma)
+      description: 'Ex.: "Planta" o "Foc, Fantasma"'
+      placeholder: "Planta"
+    validations:
+      required: false
+
+  - type: input
+    id: rol
+    attributes:
+      label: Rol
+      description: 'Ex.: "atacant físic", "atacant especial", "suport"...'
+      placeholder: "atacant especial"
+    validations:
+      required: false
+
+  - type: textarea
+    id: moviments
+    attributes:
+      label: Moviments (un per línia o separats per coma)
+      placeholder: "Lanzallamas\nInfortunio\nRapidez\nRodar"
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      placeholder: "Qualsevol anotació"
+    validations:
+      required: false
