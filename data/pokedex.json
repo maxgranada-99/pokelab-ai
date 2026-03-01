@@ -1,8 +1,21 @@
 {
   "pokemon": [
     {
+      "nom": "Gengar",
+      "tipus": [
+        "Fantasma",
+        "Verí"
+      ],
+      "rol": "atacant especial",
+      "joc": "Legends Arceus",
+      "moviments": [],
+      "notes": "evolucionat des de Haunter"
+    },
+    {
       "nom": "Leafeon",
-      "tipus": ["Planta"],
+      "tipus": [
+        "Planta"
+      ],
       "rol": "atacant físic",
       "joc": "Z-A",
       "moviments": [],
@@ -10,19 +23,31 @@
     },
     {
       "nom": "Typhlosion (Hisui)",
-      "tipus": ["Foc", "Fantasma"],
+      "tipus": [
+        "Foc",
+        "Fantasma"
+      ],
       "rol": "atacant especial",
       "joc": "Legends Arceus",
-      "moviments": ["Lanzallamas", "Infortunio", "Rapidez", "Rodar"],
+      "moviments": [
+        "Lanzallamas",
+        "Infortunio",
+        "Rapidez",
+        "Rodar"
+      ],
       "notes": ""
     },
     {
-      "nom": "Gengar",
-      "tipus": ["Fantasma", "Verí"],
-      "rol": "atacant especial",
+      "nom": "Umbreon",
+      "tipus": [
+        "Sinistre"
+      ],
+      "rol": "mur defensiu",
       "joc": "Legends Arceus",
-      "moviments": [],
-      "notes": "evolucionat des de Haunter"
+      "moviments": [
+        "_No response_"
+      ],
+      "notes": ""
     }
   ]
 }
