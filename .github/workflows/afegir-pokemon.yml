@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   add_pokemon:
-    if: contains(github.event.issue.labels.*.name, 'add-pokemon')
     runs-on: ubuntu-latest
 
     steps:
