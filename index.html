@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ca">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PokéLab AI — Pokédex personal</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; }
+      header { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+      input { padding: 10px 12px; min-width: 260px; }
+      .muted { opacity: 0.7; }
+      ul { padding-left: 18px; }
+      li { margin: 8px 0; }
+      code { background: #f4f4f4; padding: 2px 6px; border-radius: 6px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Pokédex personal</h1>
+      <span class="muted" id="count">Carregant...</span>
+    </header>
+
+    <p class="muted">Dades: <code>data/pokedex.json</code></p>
+
+    <input id="q" type="search" placeholder="Cerca per nom (ex.: gengar, leafeon)..." />
+<section>
+  <h2>Anàlisi ràpida</h2>
+  <div id="analysis" class="muted">Carregant anàlisi...</div>
+</section>
+    <h2>Llista</h2>
+    <ul id="list"></ul>
+
+    <script src="./script.js"></script>
+  </body>
+</html>

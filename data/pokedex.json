@@ -1,0 +1,28 @@
+{
+  "pokemon": [
+    {
+      "nom": "Leafeon",
+      "tipus": ["Planta"],
+      "rol": "atacant físic",
+      "joc": "Z-A",
+      "moviments": [],
+      "notes": "pendent d'objecte"
+    },
+    {
+      "nom": "Typhlosion (Hisui)",
+      "tipus": ["Foc", "Fantasma"],
+      "rol": "atacant especial",
+      "joc": "Legends Arceus",
+      "moviments": ["Lanzallamas", "Infortunio", "Rapidez", "Rodar"],
+      "notes": ""
+    },
+    {
+      "nom": "Gengar",
+      "tipus": ["Fantasma", "Verí"],
+      "rol": "atacant especial",
+      "joc": "Legends Arceus",
+      "moviments": [],
+      "notes": "evolucionat des de Haunter"
+    }
+  ]
+}
