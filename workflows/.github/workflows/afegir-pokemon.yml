@@ -1,0 +1,141 @@
+name: Afegir Pokémon a la Pokédex
+
+on:
+  issues:
+    types: [opened, edited, labeled]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  add_pokemon:
+    if: contains(github.event.issue.labels.*.name, 'add-pokemon')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Actualitza data/pokedex.json
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            function pickField(body, label) {
+              // GitHub Issue Forms solen renderitzar així:
+              // ### Nom
+              // valor
+              const re = new RegExp(`###\\s+${label}\\s*\\n+([\\s\\S]*?)(?=\\n###\\s+|\\n$)`, 'i');
+              const m = body.match(re);
+              if (!m) return "";
+              return (m[1] || "").trim();
+            }
+
+            function splitList(s) {
+              if (!s) return [];
+              // accepta "a, b, c" o línies separades
+              const parts = s
+                .split(/\n|,/)
+                .map(x => x.trim())
+                .filter(Boolean);
+              // elimina duplicats mantenint ordre
+              return [...new Set(parts)];
+            }
+
+            const issue = context.payload.issue;
+            const body = issue.body || "";
+
+            const nom = pickField(body, "Nom");
+            const joc = pickField(body, "Joc");
+            const tipusRaw = pickField(body, "Tipus \\(separats per coma\\)") || pickField(body, "Tipus");
+            const rol = pickField(body, "Rol");
+            const movimentsRaw = pickField(body, "Moviments \\(un per línia o separats per coma\\)") || pickField(body, "Moviments");
+            const notes = pickField(body, "Notes");
+
+            if (!nom || !joc) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: "❌ No he pogut afegir el Pokémon: falten camps obligatoris (Nom i/o Joc)."
+              });
+              return;
+            }
+
+            const pokedexPath = "data/pokedex.json";
+            const raw = fs.readFileSync(pokedexPath, "utf8");
+            const data = JSON.parse(raw);
+
+            data.pokemon = data.pokemon || [];
+
+            const exists = data.pokemon.some(p =>
+              (p.nom || "").toLowerCase() === nom.toLowerCase() &&
+              (p.joc || "").toLowerCase() === joc.toLowerCase()
+            );
+
+            if (exists) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `⚠️ Ja existeix "${nom}" per al joc "${joc}" a la Pokédex. No he fet cap canvi.`
+              });
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: "closed"
+              });
+              return;
+            }
+
+            const entry = {
+              nom,
+              tipus: splitList(tipusRaw),
+              rol: rol || "",
+              joc,
+              moviments: splitList(movimentsRaw),
+              notes: notes || ""
+            };
+
+            data.pokemon.push(entry);
+
+            // Ordena per nom (opcional però net)
+            data.pokemon.sort((a, b) => (a.nom || "").localeCompare(b.nom || "", "ca"));
+
+            fs.writeFileSync(pokedexPath, JSON.stringify(data, null, 2) + "\n", "utf8");
+
+            // Marca que hi ha canvi per al següent pas
+            core.setOutput("did_change", "true");
+
+      - name: Commit i push
+        run: |
+          if git diff --quiet; then
+            echo "No hi ha canvis a commitejar."
+            exit 0
+          fi
+          git config user.name "pokelab-bot"
+          git config user.email "pokelab-bot@users.noreply.github.com"
+          git add data/pokedex.json
+          git commit -m "Afegir Pokémon via Issue"
+          git push
+
+      - name: Comenta i tanca la Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: "✅ Pokémon afegit a `data/pokedex.json`. Ja ho veuràs reflectit a la web."
+            });
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              state: "closed"
+            });
