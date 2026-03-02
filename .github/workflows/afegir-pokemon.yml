@@ -2,25 +2,27 @@ name: Afegir Pokémon a la Pokédex
 
 on:
   issues:
-    types: [opened, edited, labeled]
+    types: [opened]
 
 permissions:
   contents: write
-  issues: write
+  issues: read
 
 jobs:
   add_pokemon:
+    if: contains(github.event.issue.title, '[Pokédex] Afegir:')
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Actualitza data/pokedex.json
+      - name: Afegir entrada a data/pokedex.json
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require("fs");
+            const path = "data/pokedex.json";
 
             const issue = context.payload.issue;
             const body = issue.body || "";
@@ -33,11 +35,10 @@ jobs:
 
             function splitList(s) {
               if (!s) return [];
-              const parts = s
+              return s
                 .split(/[\n,]/)
                 .map(x => x.trim())
                 .filter(Boolean);
-              return [...new Set(parts)];
             }
 
             function slugifyName(nom) {
@@ -53,77 +54,68 @@ jobs:
 
             const nom = pickField(body, "Nom");
             const joc = pickField(body, "Joc");
-            const tipusRaw = pickField(body, "Tipus");
-            const rol = pickField(body, "Rol");
             const naturalesa = pickField(body, "Naturalesa");
             const movimentsRaw = pickField(body, "Moviments");
             const notes = pickField(body, "Notes");
 
+            if (!nom) {
+              core.setFailed("Falta el camp 'Nom' a la issue.");
+              return;
+            }
+
             const slug = slugifyName(nom);
 
             let dex = null;
+            let tipus = [];
+
             try {
               const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${slug}`);
               if (res.ok) {
                 const pj = await res.json();
                 dex = pj.id;
+                tipus = (pj.types || [])
+                  .map(t => (t.type && t.type.name ? t.type.name : ""))
+                  .filter(Boolean);
+              } else {
+                console.log("PokéAPI no ha trobat el Pokémon:", slug, "status:", res.status);
               }
             } catch (e) {
-              console.log("No s'ha pogut obtenir el dex:", e);
+              console.log("Error cridant PokéAPI:", e);
             }
 
             const entry = {
               nom,
               slug,
               dex: dex || null,
-              tipus: splitList(tipusRaw),
-              rol: rol || "",
+              tipus,
               naturalesa: naturalesa || "",
-              joc,
+              joc: joc || "",
               moviments: splitList(movimentsRaw),
               notes: notes || ""
             };
 
-            const path = "data/pokedex.json";
             let data = [];
-
             if (fs.existsSync(path)) {
               data = JSON.parse(fs.readFileSync(path, "utf8"));
             }
 
+            // Evita duplicats pel mateix nom + joc (ajusta-ho si vols un altre criteri)
+            const key = `${entry.nom}__${entry.joc}`;
+            const exists = data.some(p => `${p.nom}__${p.joc}` === key);
+            if (exists) {
+              console.log("Ja existeix aquesta entrada:", key);
+              return;
+            }
+
             data.push(entry);
-
             fs.writeFileSync(path, JSON.stringify(data, null, 2));
+            console.log("Entrada afegida:", entry);
 
-            // Marca que hi ha canvi per al següent pas
-            core.setOutput("did_change", "true");
-
-      - name: Commit i push
+      - name: Commit i push si hi ha canvis
         run: |
-          if git diff --quiet; then
-            echo "No hi ha canvis a commitejar."
-            exit 0
-          fi
-          git config user.name "pokelab-bot"
-          git config user.email "pokelab-bot@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/pokedex.json
-          git commit -m "Afegir Pokémon via Issue"
+          git diff --cached --quiet && echo "No hi ha canvis" && exit 0
+          git commit -m "Afegir Pokémon via issue"
           git push
-
-      - name: Comenta i tanca la Issue
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const issue = context.payload.issue;
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issue.number,
-              body: "✅ Pokémon afegit a `data/pokedex.json`. Ja ho veuràs reflectit a la web."
-            });
-            await github.rest.issues.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issue.number,
-              state: "closed"
-            });
