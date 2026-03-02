@@ -10,72 +10,45 @@ function normalize(s) {
   return (s ?? "").toString().trim().toLowerCase();
 }
 
-function dexNum(v) {
-  const n = Number(v);
-  return Number.isFinite(n) && n > 0 ? n : null;
+function dexNum(x) {
+  const n = Number(x);
+  return Number.isFinite(n) ? n : null;
 }
 
+// Sprite robust:
+// - si hi ha pokeapiId: usa'l (formes)
+// - si no: usa dex (nacional)
 function spriteUrl(p) {
-  // PRIORITAT: pokeapiName (formes) > pokeapiId (si algun dia el fem servir) > dex
-  const name = (p?.pokeapiName ?? "").toString().trim().toLowerCase();
-  if (name) {
-    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${name}.png`;
-  }
-
-  const id = dexNum(p?.pokeapiId) ?? dexNum(p?.dex);
+  const id = dexNum(p.pokeapiId) ?? dexNum(p.dex);
   if (!id) return null;
+
+  // Sprites clàssics (els petits)
   return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
-}
-
-function baseKey(p) {
-  const bn = (p?.baseName ?? "").toString().trim();
-  if (bn) return bn;
-  const nom = (p?.nom ?? "").toString();
-  return nom.replace(/\s*\(.*?\)\s*/g, "").trim();
-}
-
-function labelLine(p) {
-  const d = dexNum(p.dex);
-  const dexText = d ? `#${d} ` : "";
-
-  const tipus = Array.isArray(p.tipus) && p.tipus.length ? ` [${p.tipus.join(", ")}]` : "";
-  const joc = p.joc ? ` — ${p.joc}` : "";
-  const reg = p.regio ? ` · ${p.regio}` : "";
-  const natura = p.naturalesa ? ` · ${p.naturalesa}` : "";
-  const rol = p.rol ? ` · ${p.rol}` : "";
-  const notes = p.notes ? ` · ${p.notes}` : "";
-
-  return `${dexText}${p.nom}${tipus}${joc}${reg}${natura}${rol}${notes}`;
 }
 
 function groupByBase(pokemons) {
   const map = new Map();
   for (const p of pokemons) {
-    const key = baseKey(p);
-    if (!map.has(key)) map.set(key, []);
-    map.get(key).push(p);
+    const base = (p.baseName ?? p.nom ?? "").toString().trim();
+    const dex = dexNum(p.dex) ?? 999999;
+    const key = `${dex}__${normalize(base)}`;
+    if (!map.has(key)) map.set(key, { baseName: base, dex: dexNum(p.dex), forms: [] });
+    map.get(key).forms.push(p);
   }
 
-  for (const [, arr] of map.entries()) {
-    arr.sort((a, b) => {
-      const fa = normalize(a.forma || "");
-      const fb = normalize(b.forma || "");
-      if (!fa && fb) return -1;
-      if (fa && !fb) return 1;
-      return fa.localeCompare(fb);
-    });
-  }
-  return map;
+  const groups = [...map.values()];
+  groups.sort((a, b) => (a.dex ?? 999999) - (b.dex ?? 999999) || normalize(a.baseName).localeCompare(normalize(b.baseName)));
+  return groups;
 }
 
 function renderAnalysis(pokemons) {
   const analysisEl = document.getElementById("analysis");
-  if (!analysisEl) return;
 
   const countsByRole = {};
   for (const p of pokemons) {
-    const r = (p.rol ?? "sense rol").toString().trim().toLowerCase();
-    countsByRole[r] = (countsByRole[r] ?? 0) + 1;
+    const r = normalize(p.rol);
+    const key = r || "sense rol";
+    countsByRole[key] = (countsByRole[key] ?? 0) + 1;
   }
 
   const roleLines = Object.entries(countsByRole)
@@ -84,7 +57,7 @@ function renderAnalysis(pokemons) {
     .join("\n");
 
   const warnings = Object.entries(countsByRole)
-    .filter(([, n]) => n >= 2)
+    .filter(([, n]) => n >= 2 && !!n)
     .map(([role, n]) => `⚠️ Tens ${n} Pokémon amb el rol “${role}”.`)
     .join("<br>");
 
@@ -94,175 +67,198 @@ ${warnings ? `<div style="margin-top:8px;">${warnings}</div>` : `<div style="mar
 `;
 }
 
-function ensureModal() {
-  let modal = document.getElementById("modal");
-  if (modal) return modal;
+function openModal(modalEl) {
+  modalEl.style.display = "block";
+  document.body.style.overflow = "hidden";
+}
+function closeModal(modalEl) {
+  modalEl.style.display = "none";
+  document.body.style.overflow = "";
+}
 
-  modal = document.createElement("div");
-  modal.id = "modal";
-  modal.style.position = "fixed";
-  modal.style.inset = "0";
-  modal.style.background = "rgba(0,0,0,.45)";
-  modal.style.display = "none";
-  modal.style.alignItems = "center";
-  modal.style.justifyContent = "center";
-  modal.style.padding = "24px";
-  modal.style.zIndex = "9999";
+function renderModal(modalEl, group) {
+  const titleEl = modalEl.querySelector("#modalTitle");
+  const bodyEl = modalEl.querySelector("#modalBody");
 
-  const card = document.createElement("div");
-  card.id = "modalCard";
-  card.style.background = "white";
-  card.style.borderRadius = "12px";
-  card.style.maxWidth = "760px";
-  card.style.width = "100%";
-  card.style.padding = "18px";
-  card.style.boxShadow = "0 10px 30px rgba(0,0,0,.25)";
+  const dexText = group.dex ? `#${group.dex} ` : "";
+  titleEl.textContent = `${dexText}${group.baseName}`;
 
-  const closeRow = document.createElement("div");
-  closeRow.style.display = "flex";
-  closeRow.style.justifyContent = "flex-end";
-
-  const closeBtn = document.createElement("button");
-  closeBtn.textContent = "Tancar";
-  closeBtn.style.cursor = "pointer";
-  closeBtn.onclick = () => (modal.style.display = "none");
-
-  closeRow.appendChild(closeBtn);
-
-  const content = document.createElement("div");
-  content.id = "modalContent";
-
-  card.appendChild(closeRow);
-  card.appendChild(content);
-  modal.appendChild(card);
-
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) modal.style.display = "none";
+  const forms = [...group.forms];
+  // primer la forma “normal” (sense (X)) i després les altres
+  forms.sort((a, b) => {
+    const aIsForm = /\(.*\)/.test(a.nom ?? "");
+    const bIsForm = /\(.*\)/.test(b.nom ?? "");
+    return Number(aIsForm) - Number(bIsForm);
   });
 
-  document.body.appendChild(modal);
+  const rows = forms.map((p) => {
+    const imgUrl = spriteUrl(p);
+    const imgHtml = imgUrl
+      ? `<img src="${imgUrl}" alt="${p.nom ?? ""}" width="64" height="64" style="image-rendering:pixelated" onerror="this.style.display='none'">`
+      : "";
+
+    const tipus = Array.isArray(p.tipus) && p.tipus.length ? `[${p.tipus.join(", ")}]` : "";
+    const joc = p.joc ? `${p.joc}` : "";
+    const reg = p.regio ? `${p.regio}` : "";
+    const rol = p.rol ? `${p.rol}` : "";
+    const natura = p.naturalesa ? `${p.naturalesa}` : "";
+    const movs = Array.isArray(p.moviments) ? p.moviments.filter(Boolean) : [];
+    const movText = movs.length ? `Moviments: ${movs.join(", ")}` : "";
+    const notes = p.notes ? p.notes : "";
+
+    const meta = [tipus, reg, joc].filter(Boolean).join(" · ");
+    const extra = [rol, natura, movText, notes].filter(Boolean).join(" · ");
+
+    return `
+<div style="display:flex; gap:12px; align-items:flex-start; padding:10px 0; border-top:1px solid #eee;">
+  <div style="width:72px; min-width:72px;">${imgHtml}</div>
+  <div>
+    <div style="font-weight:600;">${p.nom ?? group.baseName}</div>
+    <div style="opacity:.85;">${meta || ""}</div>
+    ${extra ? `<div style="margin-top:6px;">${extra}</div>` : ""}
+  </div>
+</div>`;
+  });
+
+  bodyEl.innerHTML = `
+<div style="opacity:.85; margin-bottom:8px;">Formes capturades: ${forms.length}</div>
+<div>${rows.join("")}</div>
+`;
+}
+
+function renderList(listEl, groups, onSelect) {
+  listEl.innerHTML = "";
+
+  for (const g of groups) {
+    const li = document.createElement("li");
+    li.style.listStyle = "none";
+    li.style.padding = "12px 10px";
+    li.style.borderRadius = "12px";
+    li.style.cursor = "pointer";
+    li.style.display = "flex";
+    li.style.alignItems = "center";
+    li.style.gap = "12px";
+
+    li.addEventListener("mouseenter", () => (li.style.background = "#f5f5f5"));
+    li.addEventListener("mouseleave", () => (li.style.background = ""));
+
+    // agafem una “forma representativa” per la llista: preferim la normal, si no la primera
+    const forms = g.forms ?? [];
+    const rep =
+      forms.find((p) => !/\(.*\)/.test(p.nom ?? "")) ??
+      forms[0] ??
+      { nom: g.baseName, dex: g.dex };
+
+    const img = document.createElement("img");
+    img.alt = rep.nom ?? g.baseName;
+    img.width = 64;
+    img.height = 64;
+    img.style.imageRendering = "pixelated";
+
+    const spr = spriteUrl(rep);
+    if (spr) img.src = spr;
+    else img.style.display = "none";
+
+    // si falla, amaga
+    img.onerror = () => {
+      img.style.display = "none";
+    };
+
+    const text = document.createElement("div");
+
+    const d = dexNum(rep.dex ?? g.dex);
+    const dexText = d ? `#${d} ` : "";
+    const tipus = Array.isArray(rep.tipus) && rep.tipus.length ? ` [${rep.tipus.join(", ")}]` : "";
+    const joc = rep.joc ? ` — ${rep.joc}` : "";
+    const reg = rep.regio ? ` · ${rep.regio}` : "";
+    const rol = rep.rol ? ` · ${rep.rol}` : "";
+    const natura = rep.naturalesa ? ` · ${rep.naturalesa}` : "";
+
+    const moreForms = (g.forms?.length ?? 1) > 1 ? ` · +${(g.forms.length - 1)} forma/es` : "";
+
+    text.textContent = `${dexText}${g.baseName}${tipus}${joc}${reg}${rol}${natura}${moreForms}`;
+
+    li.appendChild(img);
+    li.appendChild(text);
+
+    li.addEventListener("click", () => onSelect(g));
+    listEl.appendChild(li);
+  }
+}
+
+function setupModal() {
+  // Crea modal si no existeix
+  let modal = document.getElementById("modal");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "modal";
+    modal.style.display = "none";
+    modal.innerHTML = `
+<div style="position:fixed; inset:0; background:rgba(0,0,0,.55); display:flex; align-items:center; justify-content:center; padding:24px; z-index:9999;">
+  <div style="background:#fff; border-radius:16px; width:min(820px, 100%); max-height:min(80vh, 900px); overflow:auto; box-shadow:0 10px 30px rgba(0,0,0,.25);">
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 18px; border-bottom:1px solid #eee;">
+      <div id="modalTitle" style="font-size:20px; font-weight:800;"></div>
+      <button id="modalClose" style="border:0; background:#eee; padding:6px 10px; border-radius:10px; cursor:pointer;">Tancar</button>
+    </div>
+    <div id="modalBody" style="padding:16px 18px;"></div>
+  </div>
+</div>`;
+    document.body.appendChild(modal);
+  }
+
+  const overlay = modal.firstElementChild;
+  const closeBtn = modal.querySelector("#modalClose");
+
+  closeBtn.addEventListener("click", () => closeModal(modal));
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) closeModal(modal);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeModal(modal);
+  });
+
   return modal;
 }
 
-function openModalForGroup(baseName, forms) {
-  const modal = ensureModal();
-  const content = document.getElementById("modalContent");
-
-  const d = dexNum(forms?.[0]?.dex);
-  const header = document.createElement("div");
-  header.innerHTML = `
-    <div style="font-size:22px; font-weight:700; margin-bottom:6px;">${d ? `#${d} ` : ""}${baseName}</div>
-    <div style="color:#444; margin-bottom:12px;">Formes capturades: <b>${forms.length}</b></div>
-    <hr style="border:none; border-top:1px solid #eee; margin: 10px 0 14px;">
-  `;
-
-  const list = document.createElement("div");
-  list.style.display = "grid";
-  list.style.gap = "14px";
-
-  for (const p of forms) {
-    const row = document.createElement("div");
-    row.style.display = "grid";
-    row.style.gridTemplateColumns = "64px 1fr";
-    row.style.gap = "12px";
-    row.style.alignItems = "center";
-
-    const img = document.createElement("img");
-    img.width = 64;
-    img.height = 64;
-    img.alt = p.nom;
-    const s = spriteUrl(p);
-    if (s) img.src = s;
-    else img.style.display = "none";
-
-    const info = document.createElement("div");
-    const tipus = Array.isArray(p.tipus) && p.tipus.length ? `[${p.tipus.join(", ")}]` : "";
-    const regio = p.regio ? ` · ${p.regio}` : "";
-    const joc = p.joc ? ` — ${p.joc}` : "";
-    const natura = p.naturalesa ? ` · ${p.naturalesa}` : "";
-    const rol = p.rol ? ` · ${p.rol}` : "";
-
-    const movs = Array.isArray(p.moviments)
-      ? p.moviments.filter(x => x && x !== "_No response_")
-      : [];
-
-    info.innerHTML = `
-      <div style="font-weight:700;">${p.nom} ${tipus}${regio}${joc}</div>
-      <div style="color:#444; margin-top:2px;">${rol}${natura || ""}</div>
-      ${movs.length ? `<div style="margin-top:6px;"><b>Moviments:</b> ${movs.join(", ")}</div>` : ""}
-      ${p.notes ? `<div style="margin-top:4px;"><b>Notes:</b> ${p.notes}</div>` : ""}
-    `;
-
-    row.appendChild(img);
-    row.appendChild(info);
-    list.appendChild(row);
-  }
-
-  content.innerHTML = "";
-  content.appendChild(header);
-  content.appendChild(list);
-
-  modal.style.display = "flex";
+function hideFitxaSectionIfAny() {
+  // Si tens una secció “Fitxa” fixa a l’HTML i la vols eliminar després, ho farem al final.
+  // Ara no toquem res per no trencar-te res.
 }
 
-function renderList(listEl, groups, query) {
+function renderApp(data, query) {
+  const listEl = document.getElementById("list");
+  const countEl = document.getElementById("count");
+
+  const pokemons = Array.isArray(data) ? data : (data.pokemon ?? []);
   const q = normalize(query);
 
-  const entries = [];
-  for (const [base, forms] of groups.entries()) {
-    const match = forms.some(p => normalize(p.nom).includes(q));
-    if (!match) continue;
+  // filtrem per nom o baseName
+  const filtered = pokemons.filter((p) => {
+    const n = normalize(p.nom);
+    const b = normalize(p.baseName);
+    return n.includes(q) || b.includes(q);
+  });
 
-    const primary = forms.find(p => !normalize(p.forma || "")) ?? forms[0];
-    const d = dexNum(primary.dex);
-    entries.push({ base, forms, primary, dex: d ?? 99999 });
-  }
+  const groups = groupByBase(filtered);
+  const groupsAll = groupByBase(pokemons);
 
-  entries.sort((a, b) => a.dex - b.dex);
+  countEl.textContent = `${groups.length} / ${groupsAll.length} Pokémon mostrats`;
 
-  listEl.innerHTML = "";
-  for (const e of entries) {
-    const li = document.createElement("li");
-    li.style.listStyle = "none";
-    li.style.padding = "10px 8px";
-    li.style.borderRadius = "10px";
-    li.style.cursor = "pointer";
-    li.onmouseenter = () => (li.style.background = "rgba(0,0,0,.04)");
-    li.onmouseleave = () => (li.style.background = "transparent");
+  renderAnalysis(pokemons);
 
-    const row = document.createElement("div");
-    row.style.display = "flex";
-    row.style.alignItems = "center";
-    row.style.gap = "12px";
+  const modal = setupModal();
+  renderList(listEl, groups, (g) => {
+    renderModal(modal, g);
+    openModal(modal);
+  });
 
-    const img = document.createElement("img");
-    img.alt = e.primary.nom;
-    img.width = 64;
-    img.height = 64;
-
-    const s = spriteUrl(e.primary);
-    if (s) img.src = s;
-    else img.style.display = "none";
-
-    const text = document.createElement("div");
-    const extraForms = e.forms.length > 1 ? ` · +${e.forms.length - 1} forma/es` : "";
-    text.textContent = `${labelLine(e.primary)}${extraForms}`;
-
-    row.appendChild(img);
-    row.appendChild(text);
-    li.appendChild(row);
-
-    li.addEventListener("click", () => openModalForGroup(e.base, e.forms));
-    listEl.appendChild(li);
-  }
-
-  return entries.length;
+  hideFitxaSectionIfAny();
 }
 
 (async () => {
-  const listEl = document.getElementById("list");
-  const countEl = document.getElementById("count");
   const qEl = document.getElementById("q");
+  const countEl = document.getElementById("count");
+  const listEl = document.getElementById("list");
 
   let data;
   try {
@@ -273,16 +269,9 @@ function renderList(listEl, groups, query) {
     return;
   }
 
-  const pokemons = Array.isArray(data) ? data : (data.pokemon ?? []);
-  const groups = groupByBase(pokemons);
-
-  const shown = renderList(listEl, groups, "");
-  countEl.textContent = `${shown} / ${groups.size} Pokémon mostrats`;
-
-  renderAnalysis(pokemons);
+  renderApp(data, "");
 
   qEl.addEventListener("input", () => {
-    const shown2 = renderList(listEl, groups, qEl.value);
-    countEl.textContent = `${shown2} / ${groups.size} Pokémon mostrats`;
+    renderApp(data, qEl.value);
   });
 })();
