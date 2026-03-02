@@ -38,7 +38,8 @@ jobs:
               return s
                 .split(/[\n,]/)
                 .map(x => x.trim())
-                .filter(Boolean);
+                .filter(Boolean)
+                .filter(x => x !== "_No response_");
             }
 
             function slugifyName(nom) {
@@ -51,6 +52,27 @@ jobs:
                 .replace(/[^a-z0-9\s-]/g, "")
                 .replace(/\s+/g, "-");
             }
+
+            const typeMap = {
+              normal: "Normal",
+              fire: "Foc",
+              water: "Aigua",
+              electric: "Elèctric",
+              grass: "Planta",
+              ice: "Gel",
+              fighting: "Lluita",
+              poison: "Verí",
+              ground: "Terra",
+              flying: "Volador",
+              psychic: "Psíquic",
+              bug: "Bitxo",
+              rock: "Roca",
+              ghost: "Fantasma",
+              dragon: "Drac",
+              dark: "Sinistre",
+              steel: "Acer",
+              fairy: "Fada"
+            };
 
             const nom = pickField(body, "Nom");
             const joc = pickField(body, "Joc");
@@ -65,17 +87,32 @@ jobs:
 
             const slug = slugifyName(nom);
 
-            let dex = null;
+            let dex = null;         // National Dex real (pokemon-species)
+            let pokeapi_id = null;  // ID del /pokemon/ (formes incloses)
             let tipus = [];
 
             try {
               const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${slug}`);
               if (res.ok) {
                 const pj = await res.json();
-                dex = pj.id;
-                tipus = (pj.types || [])
-                  .map(t => (t.type && t.type.name ? t.type.name : ""))
+                pokeapi_id = pj.id;
+
+                // tipus (de /pokemon/)
+                const typesEn = (pj.types || [])
+                  .sort((a,b) => a.slot - b.slot)
+                  .map(t => t.type?.name)
                   .filter(Boolean);
+
+                tipus = typesEn.map(t => typeMap[t] ?? t);
+
+                // dex real (de /pokemon-species/)
+                if (pj.species?.url) {
+                  const sRes = await fetch(pj.species.url);
+                  if (sRes.ok) {
+                    const sData = await sRes.json();
+                    dex = sData.id; // National Dex
+                  }
+                }
               } else {
                 console.log("PokéAPI no ha trobat el Pokémon:", slug, "status:", res.status);
               }
@@ -87,6 +124,7 @@ jobs:
               nom,
               slug,
               dex: dex || null,
+              pokeapi_id: pokeapi_id || null,
               tipus,
               naturalesa: naturalesa || "",
               joc: joc || "",
@@ -99,7 +137,7 @@ jobs:
               data = JSON.parse(fs.readFileSync(path, "utf8"));
             }
 
-            // Evita duplicats pel mateix nom + joc (ajusta-ho si vols un altre criteri)
+            // evita duplicats simples (nom + joc)
             const key = `${entry.nom}__${entry.joc}`;
             const exists = data.some(p => `${p.nom}__${p.joc}` === key);
             if (exists) {
@@ -108,7 +146,7 @@ jobs:
             }
 
             data.push(entry);
-            fs.writeFileSync(path, JSON.stringify(data, null, 2));
+            fs.writeFileSync(path, JSON.stringify(data, null, 2) + "\n");
             console.log("Entrada afegida:", entry);
 
       - name: Commit i push si hi ha canvis
