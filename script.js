@@ -12,69 +12,57 @@ function normalize(s) {
 
 function dexNum(v) {
   const n = Number(v);
-  return Number.isFinite(n) ? n : null;
+  return Number.isFinite(n) && n > 0 ? n : null;
 }
 
 function spriteUrl(p) {
-  // IMPORTANT:
-  // - pokeapiId: id real de PokéAPI (formes incloses). Ex: Typhlosion (Hisui) = 10233
-  // - dex: número nacional (no serveix per formes)
-  const id = dexNum(p.pokeapiId) ?? dexNum(p.dex);
+  // PRIORITAT: pokeapiId (formes) > dex (nacional)
+  const id = dexNum(p?.pokeapiId) ?? dexNum(p?.dex);
   if (!id) return null;
   return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 }
 
-function fmtTipus(tipus) {
-  if (!Array.isArray(tipus) || !tipus.length) return "";
-  return ` [${tipus.join(", ")}]`;
+function baseKey(p) {
+  // baseName > nom sense parèntesis
+  const bn = (p?.baseName ?? "").toString().trim();
+  if (bn) return bn;
+  const nom = (p?.nom ?? "").toString();
+  return nom.replace(/\s*\(.*?\)\s*/g, "").trim();
 }
 
-function fmt(s, prefix = " · ") {
-  const t = (s ?? "").toString().trim();
-  return t ? `${prefix}${t}` : "";
+function labelLine(p) {
+  const d = dexNum(p.dex);
+  const dexText = d ? `#${d} ` : "";
+
+  const tipus = Array.isArray(p.tipus) && p.tipus.length ? ` [${p.tipus.join(", ")}]` : "";
+  const joc = p.joc ? ` — ${p.joc}` : "";
+  const reg = p.regio ? ` · ${p.regio}` : "";
+  const natura = p.naturalesa ? ` · ${p.naturalesa}` : "";
+  const rol = p.rol ? ` · ${p.rol}` : "";
+  const notes = p.notes ? ` · ${p.notes}` : "";
+
+  return `${dexText}${p.nom}${tipus}${joc}${reg}${natura}${rol}${notes}`;
 }
 
-function groupKey(p) {
-  // Base per agrupar formes:
-  // - si tens baseDex, és el millor
-  // - si no, prova a eliminar "(Hisui)" del nom
-  const baseDex = dexNum(p.baseDex);
-  if (baseDex) return `dex:${baseDex}`;
-
-  const nom = (p.nom ?? "").toString();
-  const baseNom = nom.replace(/\s*\([^)]*\)\s*/g, "").trim().toLowerCase();
-  return `name:${baseNom}`;
-}
-
-function buildGroups(pokemons) {
-  const groups = new Map();
+function groupByBase(pokemons) {
+  const map = new Map();
   for (const p of pokemons) {
-    const k = groupKey(p);
-    if (!groups.has(k)) groups.set(k, []);
-    groups.get(k).push(p);
+    const key = baseKey(p);
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(p);
   }
 
-  // ordena dins de cada grup: primer “base” (sense parèntesi), després formes
-  for (const [k, arr] of groups.entries()) {
+  // ordena formes: primer la "normal" (sense forma o forma buida), després la resta
+  for (const [k, arr] of map.entries()) {
     arr.sort((a, b) => {
-      const ap = /\(.*\)/.test(a.nom ?? "");
-      const bp = /\(.*\)/.test(b.nom ?? "");
-      if (ap !== bp) return ap ? 1 : -1;
-      return (a.nom ?? "").localeCompare(b.nom ?? "", "ca");
+      const fa = normalize(a.forma || "");
+      const fb = normalize(b.forma || "");
+      if (!fa && fb) return -1;
+      if (fa && !fb) return 1;
+      return fa.localeCompare(fb);
     });
-    groups.set(k, arr);
   }
-
-  // ordena grups per dex si el tens, si no per nom
-  const groupArr = Array.from(groups.values());
-  groupArr.sort((ga, gb) => {
-    const da = dexNum(ga[0].dex) ?? 999999;
-    const db = dexNum(gb[0].dex) ?? 999999;
-    if (da !== db) return da - db;
-    return (ga[0].nom ?? "").localeCompare(gb[0].nom ?? "", "ca");
-  });
-
-  return groupArr;
+  return map;
 }
 
 function renderAnalysis(pokemons) {
@@ -83,7 +71,7 @@ function renderAnalysis(pokemons) {
 
   const countsByRole = {};
   for (const p of pokemons) {
-    const r = (p.rol ?? "").toString().trim().toLowerCase() || "sense rol";
+    const r = (p.rol ?? "sense rol").toString().trim().toLowerCase();
     countsByRole[r] = (countsByRole[r] ?? 0) + 1;
   }
 
@@ -93,7 +81,7 @@ function renderAnalysis(pokemons) {
     .join("\n");
 
   const warnings = Object.entries(countsByRole)
-    .filter(([, n]) => n >= 2 && n !== 0)
+    .filter(([, n]) => n >= 2)
     .map(([role, n]) => `⚠️ Tens ${n} Pokémon amb el rol “${role}”.`)
     .join("<br>");
 
@@ -103,134 +91,182 @@ ${warnings ? `<div style="margin-top:8px;">${warnings}</div>` : `<div style="mar
 `;
 }
 
-function openModal(html) {
-  const modal = document.getElementById("modal");
-  const content = document.getElementById("modal-content");
-  if (!modal || !content) return;
+function ensureModal() {
+  let modal = document.getElementById("modal");
+  if (modal) return modal;
 
-  content.innerHTML = html;
-  modal.style.display = "block";
+  modal = document.createElement("div");
+  modal.id = "modal";
+  modal.style.position = "fixed";
+  modal.style.inset = "0";
+  modal.style.background = "rgba(0,0,0,.45)";
+  modal.style.display = "none";
+  modal.style.alignItems = "center";
+  modal.style.justifyContent = "center";
+  modal.style.padding = "24px";
+  modal.style.zIndex = "9999";
 
-  const closeBtn = document.getElementById("modal-close");
-  if (closeBtn) closeBtn.onclick = () => (modal.style.display = "none");
+  const card = document.createElement("div");
+  card.id = "modalCard";
+  card.style.background = "white";
+  card.style.borderRadius = "12px";
+  card.style.maxWidth = "760px";
+  card.style.width = "100%";
+  card.style.padding = "18px";
+  card.style.boxShadow = "0 10px 30px rgba(0,0,0,.25)";
 
-  modal.onclick = (e) => {
+  const closeRow = document.createElement("div");
+  closeRow.style.display = "flex";
+  closeRow.style.justifyContent = "flex-end";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "Tancar";
+  closeBtn.style.cursor = "pointer";
+  closeBtn.onclick = () => (modal.style.display = "none");
+
+  closeRow.appendChild(closeBtn);
+
+  const content = document.createElement("div");
+  content.id = "modalContent";
+
+  card.appendChild(closeRow);
+  card.appendChild(content);
+  modal.appendChild(card);
+
+  modal.addEventListener("click", (e) => {
     if (e.target === modal) modal.style.display = "none";
-  };
+  });
+
+  document.body.appendChild(modal);
+  return modal;
 }
 
-function renderModalForGroup(group) {
-  const base = group[0];
-  const dex = dexNum(base.dex);
-  const dexText = dex ? `#${dex} ` : "";
-  const baseNom = (base.nom ?? "").toString().replace(/\s*\([^)]*\)\s*/g, "").trim();
+function openModalForGroup(baseName, forms) {
+  const modal = ensureModal();
+  const content = document.getElementById("modalContent");
 
-  const rows = group
-    .map((p) => {
-      const sprite = spriteUrl(p);
-      const img = sprite
-        ? `<img src="${sprite}" alt="${p.nom ?? ""}" width="72" height="72" style="image-rendering:pixelated" />`
-        : "";
+  const d = dexNum(forms?.[0]?.dex);
+  const header = document.createElement("div");
+  header.innerHTML = `
+    <div style="font-size:22px; font-weight:700; margin-bottom:6px;">${d ? `#${d} ` : ""}${baseName}</div>
+    <div style="color:#444; margin-bottom:12px;">Formes capturades: <b>${forms.length}</b></div>
+    <hr style="border:none; border-top:1px solid #eee; margin: 10px 0 14px;">
+  `;
 
-      const nom = p.nom ?? "";
-      const tipus = fmtTipus(p.tipus);
-      const reg = (p.regio ?? "").toString().trim();
-      const joc = (p.joc ?? "").toString().trim();
-      const natura = (p.naturalesa ?? "").toString().trim();
-      const rol = (p.rol ?? "").toString().trim();
+  const list = document.createElement("div");
+  list.style.display = "grid";
+  list.style.gap = "14px";
 
-      const movs = Array.isArray(p.moviments)
-        ? p.moviments.filter(Boolean).filter((m) => m !== "_No response_")
-        : [];
-      const movTxt = movs.length ? `<div><b>Moviments:</b> ${movs.join(", ")}</div>` : "";
-
-      const line1 = `<div><b>${nom}</b>${tipus}${reg ? ` · ${reg}` : ""}${joc ? ` — ${joc}` : ""}</div>`;
-      const line2 = `<div>${rol ? `· ${rol}` : ""}${natura ? ` · ${natura}` : ""}</div>`;
-
-      return `
-<div style="display:flex; gap:12px; align-items:flex-start; padding:12px 0; border-top:1px solid #eee;">
-  <div style="width:84px">${img}</div>
-  <div style="flex:1">
-    ${line1}
-    ${line2}
-    ${movTxt}
-  </div>
-</div>`;
-    })
-    .join("");
-
-  openModal(`
-<div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-  <div>
-    <div style="font-size:20px; font-weight:700">${dexText}${baseNom}</div>
-    <div style="margin-top:4px; opacity:.75">Formes capturades: ${group.length}</div>
-  </div>
-  <button id="modal-close" style="padding:6px 10px; cursor:pointer">Tancar</button>
-</div>
-<div style="margin-top:12px">
-  ${rows}
-</div>
-`);
-}
-
-function render(listEl, countEl, data, query) {
-  const q = normalize(query);
-  const pokemons = Array.isArray(data) ? data : (data.pokemon ?? []);
-
-  // filtre per cerca (sobre nom)
-  const filtered = pokemons.filter((p) => normalize(p.nom).includes(q));
-
-  // agrupació per formes (per mostrar 1 sola entrada i “+N forma/es”)
-  const groups = buildGroups(filtered);
-
-  countEl.textContent = `${groups.length} / ${buildGroups(pokemons).length} Pokémon mostrats`;
-
-  renderAnalysis(pokemons);
-
-  listEl.innerHTML = "";
-
-  for (const group of groups) {
-    const p = group[0];
-    const li = document.createElement("li");
-    li.style.display = "flex";
-    li.style.alignItems = "center";
-    li.style.gap = "12px";
-    li.style.cursor = "pointer";
+  for (const p of forms) {
+    const row = document.createElement("div");
+    row.style.display = "grid";
+    row.style.gridTemplateColumns = "64px 1fr";
+    row.style.gap = "12px";
+    row.style.alignItems = "center";
 
     const img = document.createElement("img");
-    img.alt = p.nom ?? "";
+    img.width = 64;
+    img.height = 64;
+    img.alt = p.nom;
+    const s = spriteUrl(p);
+    if (s) img.src = s;
+    else img.style.display = "none";
+
+    const info = document.createElement("div");
+    const tipus = Array.isArray(p.tipus) && p.tipus.length ? `[${p.tipus.join(", ")}]` : "";
+    const regio = p.regio ? ` · ${p.regio}` : "";
+    const joc = p.joc ? ` — ${p.joc}` : "";
+    const natura = p.naturalesa ? ` · ${p.naturalesa}` : "";
+    const rol = p.rol ? ` · ${p.rol}` : "";
+
+    const movs = Array.isArray(p.moviments)
+      ? p.moviments.filter(x => x && x !== "_No response_")
+      : [];
+
+    info.innerHTML = `
+      <div style="font-weight:700;">${p.nom} ${tipus}${regio}${joc}</div>
+      <div style="color:#444; margin-top:2px;">${rol}${natura || ""}</div>
+      ${movs.length ? `<div style="margin-top:6px;"><b>Moviments:</b> ${movs.join(", ")}</div>` : ""}
+      ${p.notes ? `<div style="margin-top:4px;"><b>Notes:</b> ${p.notes}</div>` : ""}
+    `;
+
+    row.appendChild(img);
+    row.appendChild(info);
+    list.appendChild(row);
+  }
+
+  content.innerHTML = "";
+  content.appendChild(header);
+  content.appendChild(list);
+
+  modal.style.display = "flex";
+}
+
+function renderList(listEl, groups, query) {
+  const q = normalize(query);
+
+  // fem un array de "entries" per pintar
+  const entries = [];
+  for (const [base, forms] of groups.entries()) {
+    // el filtre busca pel nom de qualsevol forma (inclosa Hisui)
+    const match = forms.some(p => normalize(p.nom).includes(q));
+    if (!match) continue;
+
+    // dades resum: mostra el "normal" si existeix, si no el primer
+    const primary = forms.find(p => !normalize(p.forma || "")) ?? forms[0];
+
+    const d = dexNum(primary.dex);
+    entries.push({
+      base,
+      forms,
+      primary,
+      dex: d ?? 99999, // per ordenar
+    });
+  }
+
+  entries.sort((a, b) => a.dex - b.dex);
+
+  listEl.innerHTML = "";
+  for (const e of entries) {
+    const li = document.createElement("li");
+    li.style.listStyle = "none";
+    li.style.padding = "10px 8px";
+    li.style.borderRadius = "10px";
+    li.style.cursor = "pointer";
+    li.onmouseenter = () => (li.style.background = "rgba(0,0,0,.04)");
+    li.onmouseleave = () => (li.style.background = "transparent");
+
+    const row = document.createElement("div");
+    row.style.display = "flex";
+    row.style.alignItems = "center";
+    row.style.gap = "12px";
+
+    const img = document.createElement("img");
+    img.alt = e.primary.nom;
     img.width = 64;
     img.height = 64;
 
-    const sprite = spriteUrl(p);
-    if (sprite) img.src = sprite;
+    const s = spriteUrl(e.primary);
+    if (s) img.src = s;
     else img.style.display = "none";
 
     const text = document.createElement("div");
 
-    const d = dexNum(p.dex);
-    const dexText = d ? `#${d} ` : "";
+    const extraForms = e.forms.length > 1 ? ` · +${e.forms.length - 1} forma/es` : "";
+    text.textContent = `${labelLine(e.primary)}${extraForms}`;
 
-    const tipus = fmtTipus(p.tipus);
-    const joc = p.joc ? ` — ${p.joc}` : "";
-    const reg = p.regio ? ` · ${p.regio}` : "";
-    const rol = fmt(p.rol);
-    const natura = fmt(p.naturalesa);
-    const notes = fmt(p.notes);
+    row.appendChild(img);
+    row.appendChild(text);
+    li.appendChild(row);
 
-    const extraForms = group.length > 1 ? ` · +${group.length - 1} forma/es` : "";
-
-    const baseNom = (p.nom ?? "").toString().replace(/\s*\([^)]*\)\s*/g, "").trim();
-
-    text.textContent = `${dexText}${baseNom}${tipus}${joc}${reg}${rol}${natura}${notes}${extraForms}`;
-
-    li.appendChild(img);
-    li.appendChild(text);
-
-    li.onclick = () => renderModalForGroup(group);
+    li.addEventListener("click", () => {
+      openModalForGroup(e.base, e.forms);
+    });
 
     listEl.appendChild(li);
   }
+
+  return entries.length;
 }
 
 (async () => {
@@ -247,9 +283,16 @@ function render(listEl, countEl, data, query) {
     return;
   }
 
-  render(listEl, countEl, data, "");
+  const pokemons = Array.isArray(data) ? data : (data.pokemon ?? []);
+  const groups = groupByBase(pokemons);
+
+  const shown = renderList(listEl, groups, "");
+  countEl.textContent = `${shown} / ${groups.size} Pokémon mostrats`;
+
+  renderAnalysis(pokemons);
 
   qEl.addEventListener("input", () => {
-    render(listEl, countEl, data, qEl.value);
+    const shown2 = renderList(listEl, groups, qEl.value);
+    countEl.textContent = `${shown2} / ${groups.size} Pokémon mostrats`;
   });
 })();
