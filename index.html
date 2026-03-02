@@ -75,13 +75,17 @@
   <p class="muted">Dades: <code>data/pokedex.json</code></p>
 
   <div class="box">
-    <div class="progress-wrap">
-      <div class="progress-bar" aria-label="Progrés Pokédex">
-        <div class="progress-fill" id="progressFill"></div>
-      </div>
-      <div class="progress-text" id="progressText">—</div>
+  <div class="progress-wrap">
+    <div class="progress-bar" aria-label="Progrés Pokédex">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-text">
+      <span id="progressText">—</span>
+      <span class="muted"> · </span>
+      <span id="percent">0%</span>
     </div>
   </div>
+</div>
 
   <input id="q" type="search" placeholder="Cerca per nom (ex.: gengar, leafeon)" />
 
