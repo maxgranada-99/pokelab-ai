@@ -12,21 +12,114 @@ body:
     validations:
       required: true
 
-  - type: input
+  -   - type: dropdown
     id: joc
     attributes:
       label: Joc
-      description: "Ex.: Legends Arceus, Z-A, etc."
-      placeholder: "Nom del joc"
+      multiple: false
+      options:
+        - Pokémon Rojo (1996)
+        - Pokémon Verde (1996)
+        - Pokémon Azul (1996)
+        - Pokémon Amarillo (1998)
+        - Pokémon Oro (1999)
+        - Pokémon Plata (1999)
+        - Pokémon Cristal (2000)
+        - Pokémon Rubí (2002)
+        - Pokémon Zafiro (2002)
+        - Pokémon Rojo Fuego (2004)
+        - Pokémon Verde Hoja (2004)
+        - Pokémon Esmeralda (2004)
+        - Pokémon Diamante (2006)
+        - Pokémon Perla (2006)
+        - Pokémon Platino (2008)
+        - Pokémon Oro HeartGold (2009)
+        - Pokémon Plata SoulSilver (2009)
+        - Pokémon Negro (2010)
+        - Pokémon Blanco (2010)
+        - Pokémon Negro 2 (2012)
+        - Pokémon Blanco 2 (2012)
+        - Pokemon X (2013)
+        - Pokémon Y (2013)
+        - Pokémon Rubí Omega (2014)
+        - Pokémon Zafiro Alfa (2014)
+        - Pokémon Sol (2016)
+        - Pokémon Luna (2016)
+        - Pokémon Go (2016)
+        - Pokémon Ultrasol (2017)
+        - Pokémon Ultraluna (2017)
+        - Pokémon: Let's Go, Pikachu! (2018)
+        - Pokémon: Let's Go, Eevee! (2018)
+        - Pokémon Espada (2019)
+        - Pokémon Escudo (2019)
+        - Pokémon Diamante Brillante (2021)
+        - Pokémon Perla Reluciente (2021)
+        - Leyendas Pokémon: Arceus (2022)
+        - Pokémon Escarlata (2022)
+        - Pokémon Púrpura (2022)
+        - Leyendas Pokémon: Z-A (2025)
     validations:
       required: true
 
-  - type: input
+  -   - type: dropdown
     id: tipus
     attributes:
-      label: Tipus (separats per coma)
-      description: 'Ex.: "Planta" o "Foc, Fantasma"'
-      placeholder: "Planta"
+      label: Tipus
+      description: "Selecciona 1 o 2 tipus"
+      multiple: true
+      options:
+        - Acer
+        - Aigua
+        - Bitxo
+        - Drac
+        - Elèctric
+        - Fantasma
+        - Foc
+        - Fada
+        - Gel
+        - Lluita
+        - Normal
+        - Planta
+        - Psíquic
+        - Roca
+        - Sinistre
+        - Terra
+        - Verí
+        - Volador
+    validations:
+      required: false
+  
+    - type: dropdown
+    id: naturalesa
+    attributes:
+      label: Naturalesa
+      multiple: false
+      options:
+        - Fuerte (Hardy)
+        - Osada (Bold)
+        - Modesta (Modest)
+        - Serena (Calm)
+        - Miedosa (Timid)
+        - Huraña (Lonely)
+        - Dócil (Docile)
+        - Afable (Mild)
+        - Amable (Gentle)
+        - Activa (Hasty)
+        - Firme (Adamant)
+        - Agitada (Impish)
+        - Tímida (Bashful)
+        - Cauta (Careful)
+        - Alegre (Jolly)
+        - Pícara (Naughty)
+        - Floja (Lax)
+        - Alocada (Rash)
+        - Rara (Quirky)
+        - Ingenua (Naive)
+        - Audaz (Brave)
+        - Plácida (Relaxed)
+        - Mansa (Quiet)
+        - Grosera (Sassy)
+        - Seria (Serious)
     validations:
       required: false
 
