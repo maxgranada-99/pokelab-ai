@@ -8,7 +8,8 @@
     "rol": "atacant especial",
     "joc": "Legends Arceus",
     "moviments": [],
-    "notes": "evolucionat des de Haunter"
+    "notes": "evolucionat des de Haunter",
+    "dex": 94
   },
   {
     "nom": "Leafeon",
@@ -18,7 +19,8 @@
     "rol": "atacant físic",
     "joc": "Z-A",
     "moviments": [],
-    "notes": "pendent d'objecte"
+    "notes": "pendent d'objecte",
+    "dex": 470
   },
   {
     "nom": "Typhlosion (Hisui)",
@@ -34,7 +36,8 @@
       "Rapidez",
       "Rodar"
     ],
-    "notes": ""
+    "notes": "",
+    "dex": 10233
   },
   {
     "nom": "Umbreon",
@@ -44,7 +47,8 @@
     "rol": "mur defensiu",
     "joc": "Legends Arceus",
     "moviments": [],
-    "notes": ""
+    "notes": "",
+    "dex": 197
   },
   {
     "nom": "Snorlax",
