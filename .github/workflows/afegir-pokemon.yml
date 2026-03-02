@@ -50,6 +50,7 @@ jobs:
             const joc = pickField(body, "Joc");
             const tipusRaw = pickField(body, "Tipus \\(separats per coma\\)") || pickField(body, "Tipus");
             const rol = pickField(body, "Rol");
+            const naturalesa = pickField(body, "Naturalesa");
             const movimentsRaw = pickField(body, "Moviments \\(un per línia o separats per coma\\)") || pickField(body, "Moviments");
             const notes = pickField(body, "Notes");
 
@@ -94,6 +95,7 @@ jobs:
               nom,
               tipus: splitList(tipusRaw),
               rol: rol || "",
+              naturalesa: naturalesa || "",
               joc,
               moviments: splitList(movimentsRaw),
               notes: notes || ""
