@@ -1,34 +1,55 @@
 [
   {
+    "nom": "Rapidash",
+    "baseName": "Rapidash",
+    "dex": 78,
+    "regio": "Kanto",
+    "joc": "Leyendas Pokémon: Arceus (2022)",
+    "naturalesa": "Alegre (Jolly)",
+    "moviments": [],
+    "notes": "",
+    "tipus": ["Foc"],
+    "rol": "",
+    "pokeapiName": "rapidash"
+  },
+  {
     "nom": "Gengar",
     "baseName": "Gengar",
-    "forma": "",
     "dex": 94,
     "regio": "",
     "joc": "Legends Arceus",
     "naturalesa": "",
     "moviments": [],
-    "notes": "evolucionat des de Haunter",
-    "tipus": [
-      "Fantasma",
-      "Verí"
-    ],
-    "rol": "atacant especial"
+    "notes": "",
+    "tipus": ["Fantasma", "Verí"],
+    "rol": "atacant especial",
+    "pokeapiName": "gengar"
   },
   {
-    "nom": "Leafeon",
-    "baseName": "Leafeon",
-    "forma": "",
-    "dex": 470,
+    "nom": "Snorlax",
+    "baseName": "Snorlax",
+    "dex": 143,
     "regio": "",
-    "joc": "Z-A",
+    "joc": "Leyendas Pokémon: Arceus (2022)",
+    "naturalesa": "Floja (Lax)",
+    "moviments": [],
+    "notes": "",
+    "tipus": ["Normal"],
+    "rol": "",
+    "pokeapiName": "snorlax"
+  },
+  {
+    "nom": "Typhlosion",
+    "baseName": "Typhlosion",
+    "dex": 157,
+    "regio": "Johto",
+    "joc": "Pokémon Escarlata (2022)",
     "naturalesa": "",
     "moviments": [],
-    "notes": "pendent d'objecte",
-    "tipus": [
-      "Planta"
-    ],
-    "rol": "atacant físic"
+    "notes": "",
+    "tipus": ["Foc"],
+    "rol": "",
+    "pokeapiName": "typhlosion"
   },
   {
     "nom": "Typhlosion (Hisui)",
@@ -45,80 +66,34 @@
       "Rodar"
     ],
     "notes": "",
-    "tipus": [
-      "Foc",
-      "Fantasma"
-    ],
-    "rol": "atacant especial"
+    "tipus": ["Foc", "Fantasma"],
+    "rol": "atacant especial",
+    "pokeapiName": "typhlosion-hisui"
   },
   {
     "nom": "Umbreon",
     "baseName": "Umbreon",
-    "forma": "",
     "dex": 197,
     "regio": "",
     "joc": "Legends Arceus",
     "naturalesa": "",
     "moviments": [],
     "notes": "",
-    "tipus": [
-      "Sinistre"
-    ],
-    "rol": "mur defensiu"
+    "tipus": ["Sinistre"],
+    "rol": "mur defensiu",
+    "pokeapiName": "umbreon"
   },
   {
-    "nom": "Snorlax",
-    "baseName": "Snorlax",
-    "forma": "",
-    "dex": 143,
+    "nom": "Leafeon",
+    "baseName": "Leafeon",
+    "dex": 470,
     "regio": "",
-    "joc": "Leyendas Pokémon: Arceus (2022)",
-    "naturalesa": "Floja (Lax)",
-    "moviments": [
-      "Avalancha (roca)",
-      "Fuerza Equina (terra)",
-      "Triturar (sinistre)",
-      "Cabezazo Zen (psíquic)"
-    ],
-    "notes": "",
-    "tipus": [
-      "normal"
-    ],
-    "rol": ""
-  },
-  {
-    "nom": "Rapidash",
-    "baseName": "Rapidash",
-    "forma": "",
-    "dex": 78,
-    "regio": "Kanto",
-    "joc": "Leyendas Pokémon: Arceus (2022)",
-    "naturalesa": "Alegre (Jolly)",
-    "moviments": [
-      "Cola Férrea (acer)",
-      "Doble Filo (normal)",
-      "Llamarada (foc)",
-      "Hipnosis (psíquic)"
-    ],
-    "notes": "",
-    "tipus": [
-      "Foc"
-    ],
-    "rol": ""
-  },
-  {
-    "nom": "Typhlosion",
-    "baseName": "Typhlosion",
-    "forma": "",
-    "dex": 157,
-    "regio": "Johto",
-    "joc": "Pokémon Escarlata (2022)",
-    "naturalesa": "None",
+    "joc": "Z-A",
+    "naturalesa": "",
     "moviments": [],
-    "notes": "",
-    "tipus": [
-      "Foc"
-    ],
-    "rol": ""
+    "notes": "pendent d'objecte",
+    "tipus": ["Planta"],
+    "rol": "atacant físic",
+    "pokeapiName": "leafeon"
   }
 ]
