@@ -1,18 +1,17 @@
 name: "Afegir Pokémon"
 description: "Afegeix un Pokémon a la Pokédex personal"
-title: "[Pokédex] Afegir: "
-labels: ["add-pokemon"]
+title: "[Pokédex] Afegir:"
 body:
   - type: input
     id: nom
     attributes:
       label: Nom
-      description: "Ex.: Leafeon, Gengar, Typhlosion (Hisui)"
+      description: "Ex.: Umbreon, Typhlosion (Hisui)"
       placeholder: "Nom del Pokémon"
     validations:
       required: true
 
-  -   - type: dropdown
+  - type: dropdown
     id: joc
     attributes:
       label: Joc
@@ -48,48 +47,20 @@ body:
         - Pokémon Go (2016)
         - Pokémon Ultrasol (2017)
         - Pokémon Ultraluna (2017)
-        - Pokémon: Let's Go, Pikachu! (2018)
-        - Pokémon: Let's Go, Eevee! (2018)
+        - 'Pokémon: Lets Go, Pikachu! (2018)'
+        - 'Pokémon: Lets Go, Eevee! (2018)'
         - Pokémon Espada (2019)
         - Pokémon Escudo (2019)
         - Pokémon Diamante Brillante (2021)
         - Pokémon Perla Reluciente (2021)
-        - Leyendas Pokémon: Arceus (2022)
+        - 'Leyendas Pokémon: Arceus (2022)'
         - Pokémon Escarlata (2022)
         - Pokémon Púrpura (2022)
-        - Leyendas Pokémon: Z-A (2025)
+        - 'Leyendas Pokémon: Z-A (2025)'
     validations:
       required: true
 
-  -   - type: dropdown
-    id: tipus
-    attributes:
-      label: Tipus
-      description: "Selecciona 1 o 2 tipus"
-      multiple: true
-      options:
-        - Acer
-        - Aigua
-        - Bitxo
-        - Drac
-        - Elèctric
-        - Fantasma
-        - Foc
-        - Fada
-        - Gel
-        - Lluita
-        - Normal
-        - Planta
-        - Psíquic
-        - Roca
-        - Sinistre
-        - Terra
-        - Verí
-        - Volador
-    validations:
-      required: false
-  
-    - type: dropdown
+  - type: dropdown
     id: naturalesa
     attributes:
       label: Naturalesa
@@ -123,19 +94,11 @@ body:
     validations:
       required: false
 
-  - type: input
-    id: rol
-    attributes:
-      label: Rol
-      description: 'Ex.: "atacant físic", "atacant especial", "suport"...'
-      placeholder: "atacant especial"
-    validations:
-      required: false
-
   - type: textarea
     id: moviments
     attributes:
-      label: Moviments (un per línia o separats per coma)
+      label: Moviments
+      description: "Un per línia o separats per coma"
       placeholder: "Lanzallamas\nInfortunio\nRapidez\nRodar"
     validations:
       required: false

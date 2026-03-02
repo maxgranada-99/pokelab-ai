@@ -20,90 +20,62 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const fs = require('fs');
-
-            function pickField(body, label) {
-              // GitHub Issue Forms solen renderitzar així:
-              // ### Nom
-              // valor
-              const re = new RegExp(`###\\s+${label}\\s*\\n+([\\s\\S]*?)(?=\\n###\\s+|\\n$)`, 'i');
-              const m = body.match(re);
-              if (!m) return "";
-              return (m[1] || "").trim();
-            }
-
-            function splitList(s) {
-              if (!s) return [];
-              // accepta "a, b, c" o línies separades
-              const parts = s
-                .split(/\n|,/)
-                .map(x => x.trim())
-                .filter(Boolean);
-              // elimina duplicats mantenint ordre
-              return [...new Set(parts)];
-            }
-
-              function slugifyName(nom) {
-    return nom
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .trim()
-      .replace(/\(.*?\)/g, "")
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-");
-  }
+            const fs = require("fs");
 
             const issue = context.payload.issue;
             const body = issue.body || "";
 
-            const nom = pickField(body, "Nom");
-            const joc = pickField(body, "Joc");
-            const tipusRaw = pickField(body, "Tipus \\(separats per coma\\)") || pickField(body, "Tipus");
-            const rol = pickField(body, "Rol");
-            const naturalesa = pickField(body, "Naturalesa");
-            const movimentsRaw = pickField(body, "Moviments \\(un per línia o separats per coma\\)") || pickField(body, "Moviments");
-            const notes = pickField(body, "Notes");
-
-            if (!nom || !joc) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                body: "❌ No he pogut afegir el Pokémon: falten camps obligatoris (Nom i/o Joc)."
-              });
-              return;
+            function pickField(text, fieldName) {
+              const regex = new RegExp(`### ${fieldName}\\s*\\n([\\s\\S]*?)(?=\\n### |$)`, "i");
+              const match = text.match(regex);
+              return match ? match[1].trim() : "";
             }
 
-            const pokedexPath = "data/pokedex.json";
-            const raw = fs.readFileSync(pokedexPath, "utf8");
-            const data = JSON.parse(raw);
+            function splitList(s) {
+              if (!s) return [];
+              const parts = s
+                .split(/[\n,]/)
+                .map(x => x.trim())
+                .filter(Boolean);
+              return [...new Set(parts)];
+            }
 
-            data.pokemon = data.pokemon || [];
+            function slugifyName(nom) {
+              return nom
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .trim()
+                .replace(/\(.*?\)/g, "")
+                .replace(/[^a-z0-9\s-]/g, "")
+                .replace(/\s+/g, "-");
+            }
 
-            const exists = data.pokemon.some(p =>
-              (p.nom || "").toLowerCase() === nom.toLowerCase() &&
-              (p.joc || "").toLowerCase() === joc.toLowerCase()
-            );
+            const nom = pickField(body, "Nom");
+            const joc = pickField(body, "Joc");
+            const tipusRaw = pickField(body, "Tipus");
+            const rol = pickField(body, "Rol");
+            const naturalesa = pickField(body, "Naturalesa");
+            const movimentsRaw = pickField(body, "Moviments");
+            const notes = pickField(body, "Notes");
 
-            if (exists) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                body: `⚠️ Ja existeix "${nom}" per al joc "${joc}" a la Pokédex. No he fet cap canvi.`
-              });
-              await github.rest.issues.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                state: "closed"
-              });
-              return;
+            const slug = slugifyName(nom);
+
+            let dex = null;
+            try {
+              const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${slug}`);
+              if (res.ok) {
+                const pj = await res.json();
+                dex = pj.id;
+              }
+            } catch (e) {
+              console.log("No s'ha pogut obtenir el dex:", e);
             }
 
             const entry = {
               nom,
+              slug,
+              dex: dex || null,
               tipus: splitList(tipusRaw),
               rol: rol || "",
               naturalesa: naturalesa || "",
@@ -112,12 +84,16 @@ jobs:
               notes: notes || ""
             };
 
-            data.pokemon.push(entry);
+            const path = "data/pokedex.json";
+            let data = [];
 
-            // Ordena per nom (opcional però net)
-            data.pokemon.sort((a, b) => (a.nom || "").localeCompare(b.nom || "", "ca"));
+            if (fs.existsSync(path)) {
+              data = JSON.parse(fs.readFileSync(path, "utf8"));
+            }
 
-            fs.writeFileSync(pokedexPath, JSON.stringify(data, null, 2) + "\n", "utf8");
+            data.push(entry);
+
+            fs.writeFileSync(path, JSON.stringify(data, null, 2));
 
             // Marca que hi ha canvi per al següent pas
             core.setOutput("did_change", "true");
