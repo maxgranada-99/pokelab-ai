@@ -14,46 +14,43 @@ function dexNum(dex) {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
-// Barra de progrés: intenta trobar elements típics sense dependre d’un sol id
+// Barra de progrés
 function setProgress(capturedUnique, total) {
   const pct = total > 0 ? Math.round((capturedUnique / total) * 100) : 0;
 
-  // possibles IDs (per si el teu HTML ha anat canviant)
   const txt =
     document.getElementById("progressText") ||
     document.getElementById("progress-text") ||
     document.getElementById("progress_label") ||
     document.getElementById("progressLabel");
 
-  const bar =
-    document.getElementById("progressBar") ||
-    document.getElementById("progress-bar") ||
-    document.getElementById("progress") ||
-    document.querySelector("progress");
+  // HTML teu: la barra és el fill que s’ha d’omplir (progressFill)
+  const fill =
+    document.getElementById("progressFill") ||
+    document.getElementById("progress-fill");
 
-  const pctEl =
-    document.getElementById("percent") ||
-    document.getElementById("progressPercent") ||
-    document.getElementById("progress-percent");
-
-  if (txt) txt.textContent = `${capturedUnique}/${total}`;
-  if (pctEl) pctEl.textContent = `${pct}%`;
-
-  // Si és <progress>
-  if (bar && bar.tagName?.toLowerCase() === "progress") {
-    bar.max = total;
-    bar.value = capturedUnique;
-    return;
-  }
-
-  // Si és una barra "div" amb width
-  if (bar && bar.style) {
-    bar.style.width = `${pct}%`;
-    bar.setAttribute("aria-valuenow", String(capturedUnique));
-    bar.setAttribute("aria-valuemax", String(total));
-  }
+  if (txt) txt.textContent = `${capturedUnique}/${total} · ${pct}%`;
+  if (fill) fill.style.width = `${pct}%`;
 }
-function renderDetail(p) {
+
+function getFormsForSameDex(data, p) {
+  const d = dexNum(p.dex);
+  if (!d) return [p];
+
+  const all = data.filter(x => dexNum(x.dex) === d);
+
+  all.sort((a, b) => {
+    const aForm = (a.forma || "").trim();
+    const bForm = (b.forma || "").trim();
+    if (!aForm && bForm) return -1;
+    if (aForm && !bForm) return 1;
+    return aForm.localeCompare(bForm);
+  });
+
+  return all;
+}
+
+function renderDetail(data, p) {
   const detailEl = document.getElementById("detail");
   if (!detailEl) return;
 
@@ -65,29 +62,49 @@ function renderDetail(p) {
     ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${spriteId}.png`
     : "";
 
-  const tipus = Array.isArray(p.tipus) && p.tipus.length ? p.tipus.join(", ") : "—";
-  const movs = Array.isArray(p.moviments) ? p.moviments.filter(x => x && x !== "_No response_") : [];
-  const movText = movs.length ? movs.join(", ") : "—";
+  const forms = getFormsForSameDex(data, p);
+
+  const formsHtml = forms.map(f => {
+    const fdex = dexNum(f.dex);
+    const fspriteId = f.pokeapiId ?? fdex;
+    const fsprite = fspriteId
+      ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${fspriteId}.png`
+      : "";
+
+    const ftipus = Array.isArray(f.tipus) && f.tipus.length ? f.tipus.join(", ") : "—";
+    const fmovs = Array.isArray(f.moviments) ? f.moviments.filter(x => x && x !== "_No response_") : [];
+    const fmovText = fmovs.length ? fmovs.join(", ") : "—";
+
+    return `
+      <div style="display:flex; gap:12px; padding:10px 0; border-top:1px solid #eee;">
+        ${fsprite ? `<img src="${fsprite}" alt="${f.nom}" width="64" height="64" onerror="this.style.display='none'">` : ""}
+        <div style="flex:1">
+          <div style="font-weight:700">${f.nom}${f.forma ? ` · ${f.forma}` : ""}</div>
+          <div class="muted">
+            ${ftipus}
+            ${f.regio ? ` · ${f.regio}` : ""}
+            ${f.joc ? ` — ${f.joc}` : ""}
+            ${f.naturalesa ? ` · ${f.naturalesa}` : ""}
+            ${f.rol ? ` · ${f.rol}` : ""}
+          </div>
+          <div class="muted" style="margin-top:4px"><b>Moviments:</b> ${fmovText}</div>
+          ${f.notes ? `<div class="muted" style="margin-top:2px"><b>Notes:</b> ${f.notes}</div>` : ""}
+        </div>
+      </div>
+    `;
+  }).join("");
 
   detailEl.className = "detail";
   detailEl.innerHTML = `
     <div class="detail-head">
       ${sprite ? `<img src="${sprite}" alt="${p.nom}" onerror="this.style.display='none'">` : ""}
       <div style="flex:1">
-        <h3>${dexText}${p.nom}</h3>
-        <div class="muted">${p.baseName ? `Base: ${p.baseName}` : ""}${p.forma ? ` · Forma: ${p.forma}` : ""}</div>
+        <h3>${dexText}${p.baseName || p.nom}</h3>
+        <div class="muted">Formes capturades: ${forms.length}</div>
       </div>
       <button class="close" id="closeDetail">Tancar</button>
     </div>
-
-    <div class="grid">
-      <div class="k">Tipus</div><div class="v">${tipus}</div>
-      <div class="k">Regió</div><div class="v">${p.regio || "—"}</div>
-      <div class="k">Joc</div><div class="v">${p.joc || "—"}</div>
-      <div class="k">Naturalesa</div><div class="v">${p.naturalesa || "—"}</div>
-      <div class="k">Moviments</div><div class="v">${movText}</div>
-      <div class="k">Notes</div><div class="v">${p.notes || "—"}</div>
-    </div>
+    <div style="margin-top:8px">${formsHtml}</div>
   `;
 
   const btn = document.getElementById("closeDetail");
@@ -103,20 +120,13 @@ function render(listEl, countEl, data, query) {
   const q = normalize(query);
   const items = data.filter(p => normalize(p.nom).includes(q));
 
-  // Comptador de llista filtrada / capturats
-  countEl.textContent = `${items.length} / ${data.length} Pokémon mostrats`;
+  if (countEl) countEl.textContent = `${items.length} / ${data.length} Pokémon mostrats`;
 
-  // Total Nacional (fix)
   const TOTAL_DEX = 1025;
-
-  // “capturats” únics per espècie (dex)
-  const uniqueDex = new Set(
-    data.map(p => dexNum(p.dex)).filter(Boolean)
-  ).size;
-
+  const uniqueDex = new Set(data.map(p => dexNum(p.dex)).filter(Boolean)).size;
   setProgress(uniqueDex, TOTAL_DEX);
 
-  // Anàlisi ràpida per rol (si no hi ha rol, "sense rol")
+  // Anàlisi ràpida
   const analysisEl = document.getElementById("analysis");
   if (analysisEl) {
     const countsByRole = {};
@@ -141,10 +151,14 @@ ${warnings ? `<div style="margin-top:8px;">${warnings}</div>` : `<div style="mar
 `;
   }
 
-  // Render llista (capturats)
+  // Llista
   listEl.innerHTML = "";
-  for (const p of items.sort((a,b) => (dexNum(a.dex) ?? 99999) - (dexNum(b.dex) ?? 99999))) {
+
+  const sorted = [...items].sort((a, b) => (dexNum(a.dex) ?? 99999) - (dexNum(b.dex) ?? 99999));
+
+  for (const p of sorted) {
     const li = document.createElement("li");
+    li.className = "row";
 
     const dex = dexNum(p.dex);
     const dexText = dex ? `#${dex} ` : "";
@@ -154,10 +168,10 @@ ${warnings ? `<div style="margin-top:8px;">${warnings}</div>` : `<div style="mar
     img.width = 64;
     img.height = 64;
 
-    // sprite (si tens pokeapiId, usa’l; si no, dex; si no, amaga)
     const spriteId = p.pokeapiId ?? dex;
     if (spriteId) {
       img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${spriteId}.png`;
+      img.onerror = () => (img.style.display = "none");
     } else {
       img.style.display = "none";
     }
@@ -172,14 +186,11 @@ ${warnings ? `<div style="margin-top:8px;">${warnings}</div>` : `<div style="mar
 
     text.textContent = `${dexText}${p.nom}${tipus}${joc}${regio}${rol}${natura}${notes}`;
 
-    li.style.display = "flex";
-    li.style.alignItems = "center";
-    li.style.gap = "12px";
-
     li.appendChild(img);
     li.appendChild(text);
-    li.style.cursor = "pointer";
-    li.addEventListener("click", () => renderDetail(p));
+
+    li.addEventListener("click", () => renderDetail(data, p));
+
     listEl.appendChild(li);
   }
 }
