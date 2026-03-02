@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "nom": "Melmetal",
+    "baseName": "Melmetal",
+    "forma": "",
+    "dex": 809,
+    "pokeapiId": 809,
+    "regio": "Normal",
+    "joc": "Pokémon Go",
+    "naturalesa": "Audaz",
+    "moviments": [
+      "Ferropuño doble (acer)",
+      "Hiperrayo (normal)",
+      "Puño dinámico (lluita)",
+      "Puño trueno (elèctric)"
+    ],
+    "notes": "",
+    "tipus": [
+      "Acer"
+    ]
+  }
+]
