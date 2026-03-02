@@ -9,7 +9,9 @@
     "joc": "Legends Arceus",
     "moviments": [],
     "notes": "evolucionat des de Haunter",
-    "dex": 94
+    "dex": 94,
+    "slug": "gengar",
+    "pokeapi_id": 94
   },
   {
     "nom": "Leafeon",
@@ -20,7 +22,9 @@
     "joc": "Z-A",
     "moviments": [],
     "notes": "pendent d'objecte",
-    "dex": 470
+    "dex": 470,
+    "slug": "leafeon",
+    "pokeapi_id": 470
   },
   {
     "nom": "Typhlosion (Hisui)",
@@ -37,7 +41,9 @@
       "Rodar"
     ],
     "notes": "",
-    "dex": 10233
+    "dex": 157,
+    "slug": "typhlosion-hisui",
+    "pokeapi_id": 10233
   },
   {
     "nom": "Umbreon",
@@ -48,7 +54,9 @@
     "joc": "Legends Arceus",
     "moviments": [],
     "notes": "",
-    "dex": 197
+    "dex": 197,
+    "slug": "umbreon",
+    "pokeapi_id": 197
   },
   {
     "nom": "Snorlax",
@@ -65,6 +73,7 @@
       "Triturar (sinistre)",
       "Cabezazo Zen (psíquic)"
     ],
-    "notes": "_No response_"
+    "notes": "_No response_",
+    "pokeapi_id": 143
   }
 ]
