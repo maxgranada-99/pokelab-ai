@@ -75,5 +75,24 @@
     ],
     "notes": "_No response_",
     "pokeapi_id": 143
+  },
+  {
+    "nom": "Rapidash",
+    "slug": "rapidash",
+    "dex": 78,
+    "pokeapi_id": 78,
+    "tipus": [
+      "Foc"
+    ],
+    "regio": "Kanto",
+    "naturalesa": "Alegre (Jolly)",
+    "joc": "Leyendas Pokémon: Arceus (2022)",
+    "moviments": [
+      "Cola Férrea (acer)",
+      "Doble Filo (normal)",
+      "Llamarada (foc)",
+      "Hipnosis (psíquic)"
+    ],
+    "notes": ""
   }
 ]
