@@ -11,7 +11,6 @@ function normalize(s) {
 function render(listEl, countEl, data, query) {
   const q = normalize(query);
 
-  // pokedex.json és un ARRAY (compat: també acceptem {pokemon: []})
   const pokemons = Array.isArray(data) ? data : (data.pokemon ?? []);
   const items = pokemons.filter(p => normalize(p.nom).includes(q));
 
@@ -40,7 +39,6 @@ function render(listEl, countEl, data, query) {
 ${warnings ? `<div style="margin-top:8px;">${warnings}</div>` : `<div style="margin-top:8px;">✅ Rols bastant equilibrats (de moment).</div>`}
 `;
 
-  // Render llista
   listEl.innerHTML = "";
   for (const p of items) {
     const li = document.createElement("li");
@@ -50,21 +48,25 @@ ${warnings ? `<div style="margin-top:8px;">${warnings}</div>` : `<div style="mar
     img.width = 96;
     img.height = 96;
 
-    // sprite oficial (PokéAPI)
-    if (p.dex) {
-      img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.dex}.png`;
+    // IMPORTANT:
+    // - pokeapi_id: sprite correcte per formes
+    // - dex: fallback
+    const spriteId = p.pokeapi_id || p.dex;
+
+    if (spriteId) {
+      img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${spriteId}.png`;
     } else {
       img.style.display = "none";
     }
 
     const text = document.createElement("div");
-    const dex = p.dex ? `#${p.dex} ` : "";
+    const dexText = p.dex ? `#${p.dex} ` : "";
     const joc = p.joc ? ` — ${p.joc}` : "";
     const tipus = Array.isArray(p.tipus) && p.tipus.length ? ` [${p.tipus.join(", ")}]` : "";
     const rol = p.rol ? ` · ${p.rol}` : "";
     const notes = p.notes ? ` · ${p.notes}` : "";
 
-    text.textContent = `${dex}${p.nom}${tipus}${joc}${rol}${notes}`;
+    text.textContent = `${dexText}${p.nom}${tipus}${joc}${rol}${notes}`;
 
     li.style.display = "flex";
     li.style.alignItems = "center";
