@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   add_pokemon:
-    if: contains(github.event.issue.title, '[Pokédex] Afegir:')
+    if: startsWith(github.event.issue.title, '[Pokédex] Afegir')
     runs-on: ubuntu-latest
 
     steps:
