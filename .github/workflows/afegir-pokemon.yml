@@ -43,6 +43,17 @@ jobs:
               return [...new Set(parts)];
             }
 
+              function slugifyName(nom) {
+    return nom
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim()
+      .replace(/\(.*?\)/g, "")
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-");
+  }
+
             const issue = context.payload.issue;
             const body = issue.body || "";
 
