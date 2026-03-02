@@ -1,4 +1,4 @@
-name: Migrar Pokédex (omplir dex i tipus)
+name: Migrar Pokédex (dex real + pokeapi_id + tipus)
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Omplir dex i tipus amb PokéAPI
+      - name: Migrar data/pokedex.json amb PokéAPI
         uses: actions/github-script@v7
         with:
           script: |
@@ -53,8 +53,8 @@ jobs:
 
             function slugBase(name) {
               return normalizeText(name)
-                .replace(/\(.*?\)/g, "")         // treu parèntesis
-                .replace(/[^a-z0-9\s-]/g, "")     // treu puntuació
+                .replace(/\(.*?\)/g, "")
+                .replace(/[^a-z0-9\s-]/g, "")
                 .trim()
                 .replace(/\s+/g, "-");
             }
@@ -68,57 +68,72 @@ jobs:
 
               const form = normalizeText(m[1]);
 
-              // formes regionals més comunes a PokéAPI
               if (form.includes("hisui")) return `${base}-hisui`;
               if (form.includes("alola")) return `${base}-alola`;
               if (form.includes("galar")) return `${base}-galar`;
               if (form.includes("paldea")) return `${base}-paldea`;
 
-              // si no reconeixem la forma, provem sense forma
               return base;
             }
 
             function cleanMoves(moviments) {
               if (!Array.isArray(moviments)) return moviments;
-              return moviments.filter(x => (x ?? "").toString().trim() && (x ?? "") !== "_No response_");
+              return moviments
+                .map(x => (x ?? "").toString().trim())
+                .filter(Boolean)
+                .filter(x => x !== "_No response_");
             }
 
             async function fetchPokemon(slug) {
-              const url = `https://pokeapi.co/api/v2/pokemon/${slug}`;
-              const res = await fetch(url);
+              const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${slug}`);
               if (!res.ok) throw new Error(`PokéAPI ${res.status} per ${slug}`);
               return res.json();
             }
 
-            // 1) Llegeix
+            async function fetchSpeciesId(speciesUrl) {
+              const res = await fetch(speciesUrl);
+              if (!res.ok) throw new Error(`Species ${res.status}`);
+              const s = await res.json();
+              return s.id;
+            }
+
             const raw = fs.readFileSync(PATH, "utf8");
             let data = JSON.parse(raw);
+
             const pokemons = Array.isArray(data) ? data : (data.pokemon ?? []);
 
             let changed = false;
 
             for (const p of pokemons) {
-              // neteja moviments “_No response_”
+              // neteja moviments
               const cleaned = cleanMoves(p.moviments);
-              if (cleaned !== p.moviments) {
+              if (JSON.stringify(cleaned) !== JSON.stringify(p.moviments)) {
                 p.moviments = cleaned;
                 changed = true;
               }
 
-              // ja està complet
-              if (p.dex && Array.isArray(p.tipus) && p.tipus.length) continue;
+              const needsDex = !p.dex || p.dex >= 10000; // arregla casos tipus 10233
+              const needsPokeId = !p.pokeapi_id;
+              const needsTypes = !Array.isArray(p.tipus) || p.tipus.length === 0;
 
-              const slug = slugPokemon(p.nom);
+              if (!needsDex && !needsPokeId && !needsTypes) continue;
+
+              const slug = p.slug ? p.slug : slugPokemon(p.nom);
               try {
                 const info = await fetchPokemon(slug);
 
-                if (!p.dex) {
-                  p.dex = info.id;
+                if (!p.slug) {
+                  p.slug = slug;
                   changed = true;
                 }
 
-                if (!Array.isArray(p.tipus) || p.tipus.length === 0) {
-                  const typesEn = (info.types ?? [])
+                if (needsPokeId) {
+                  p.pokeapi_id = info.id;
+                  changed = true;
+                }
+
+                if (needsTypes) {
+                  const typesEn = (info.types || [])
                     .sort((a,b) => a.slot - b.slot)
                     .map(t => t.type?.name)
                     .filter(Boolean);
@@ -126,15 +141,17 @@ jobs:
                   p.tipus = typesEn.map(t => typeMap[t] ?? t);
                   changed = true;
                 }
+
+                if (needsDex && info.species?.url) {
+                  p.dex = await fetchSpeciesId(info.species.url);
+                  changed = true;
+                }
               } catch (e) {
-                console.log(`⚠️ No he pogut completar: "${p.nom}" (slug: ${slug}) -> ${e.message}`);
+                console.log(`⚠️ No he pogut migrar "${p.nom}" (slug: ${slug}) -> ${e.message}`);
               }
             }
 
-            // 2) Escriu
-            const out = JSON.stringify(Array.isArray(data) ? pokemons : { pokemon: pokemons }, null, 2) + "\n";
-            fs.writeFileSync(PATH, out, "utf8");
-
+            fs.writeFileSync(PATH, JSON.stringify(pokemons, null, 2) + "\n", "utf8");
             console.log(changed ? "✅ Migració feta (hi ha canvis)" : "ℹ️ No hi havia res per migrar");
 
       - name: Commit i push si hi ha canvis
@@ -146,5 +163,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/pokedex.json
-          git commit -m "chore: migrar pokedex (omplir dex i tipus)"
+          git commit -m "chore: migrar pokedex (dex real + pokeapi_id + tipus)"
           git push
