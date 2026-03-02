@@ -26,13 +26,12 @@ jobs:
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
-          node <<'NODE'
+          node --input-type=commonjs <<'NODE'
           const fs = require("fs");
 
           const body = process.env.ISSUE_BODY || "";
 
           function pickField(md, label) {
-            // Issue forms: "### Label\nvalor\n"
             const re = new RegExp(`^###\\s+${label}\\s*$([\\s\\S]*?)(?=^###\\s+|\\Z)`, "m");
             const m = md.match(re);
             return (m ? (m[1] || "") : "").trim();
@@ -97,7 +96,6 @@ jobs:
             process.exit(0);
           }
 
-          // Si el nom ve amb parèntesis, el respectem.
           let baseName = nomRaw;
           let forma = "";
           const m = nomRaw.match(/^(.*?)\s*\((.*?)\)\s*$/);
@@ -106,23 +104,20 @@ jobs:
             forma = (m[2] || "").trim();
           }
 
-          // Si NO hi ha forma al nom, però la Regió és una regió amb formes, la convertim a "forma".
           const regio = (regioRaw || "").trim();
           const regionalForms = new Set(["Alola", "Galar", "Hisui", "Paldea"]);
           if (!forma && regionalForms.has(regio)) {
-            forma = regio; // ex. Hisui
+            forma = regio;
           }
 
           const baseSlug = slugify(baseName);
           const formSlug = forma ? slugify(forma) : "";
           const pokeSlug = formSlug ? `${baseSlug}-${formSlug}` : baseSlug;
 
-          // Dades automàtiques
-          let dex = null;       // nacional (species id del base)
-          let pokeapiId = null; // id del pokemon (forma)
+          let dex = null;
+          let pokeapiId = null;
           let tipus = [];
 
-          // dex (sempre del base)
           try {
             const species = await fetchJson(`https://pokeapi.co/api/v2/pokemon-species/${baseSlug}`);
             dex = species.id ?? null;
@@ -130,7 +125,6 @@ jobs:
             console.log(`WARN: no puc obtenir dex species per ${baseSlug}: ${e.message}`);
           }
 
-          // pokeapiId + tipus (de la forma si n'hi ha)
           try {
             const pkm = await fetchJson(`https://pokeapi.co/api/v2/pokemon/${pokeSlug}`);
             pokeapiId = pkm.id ?? null;
@@ -139,7 +133,6 @@ jobs:
               .map(t => TYPE_CA[t.type?.name] || t.type?.name)
               .filter(Boolean);
           } catch (e) {
-            // fallback: si la forma no existeix, prova base
             console.log(`WARN: no puc obtenir pokemon per ${pokeSlug}: ${e.message}`);
             try {
               const pkm2 = await fetchJson(`https://pokeapi.co/api/v2/pokemon/${baseSlug}`);
@@ -167,13 +160,11 @@ jobs:
             tipus
           };
 
-          // Llegeix pokedex.json
           const path = "data/pokedex.json";
           const raw = fs.existsSync(path) ? fs.readFileSync(path, "utf8").trim() : "[]";
           let data = JSON.parse(raw || "[]");
           if (!Array.isArray(data)) data = [];
 
-          // Evita duplicats: base+forma+joc
           const key = `${slugify(entry.baseName)}|${slugify(entry.forma)}|${slugify(entry.joc)}`;
           const exists = data.some(p => `${slugify(p.baseName || p.nom)}|${slugify(p.forma)}|${slugify(p.joc)}` === key);
 
