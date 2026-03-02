@@ -1,7 +1,10 @@
 [
   {
     "nom": "Gengar",
-    "tipus": ["Fantasma", "Verí"],
+    "tipus": [
+      "Fantasma",
+      "Verí"
+    ],
     "rol": "atacant especial",
     "joc": "Legends Arceus",
     "moviments": [],
@@ -9,7 +12,9 @@
   },
   {
     "nom": "Leafeon",
-    "tipus": ["Planta"],
+    "tipus": [
+      "Planta"
+    ],
     "rol": "atacant físic",
     "joc": "Z-A",
     "moviments": [],
@@ -17,7 +22,10 @@
   },
   {
     "nom": "Typhlosion (Hisui)",
-    "tipus": ["Foc", "Fantasma"],
+    "tipus": [
+      "Foc",
+      "Fantasma"
+    ],
     "rol": "atacant especial",
     "joc": "Legends Arceus",
     "moviments": [
@@ -30,10 +38,29 @@
   },
   {
     "nom": "Umbreon",
-    "tipus": ["Sinistre"],
+    "tipus": [
+      "Sinistre"
+    ],
     "rol": "mur defensiu",
     "joc": "Legends Arceus",
     "moviments": [],
     "notes": ""
+  },
+  {
+    "nom": "Snorlax",
+    "slug": "snorlax",
+    "dex": 143,
+    "tipus": [
+      "normal"
+    ],
+    "naturalesa": "Floja (Lax)",
+    "joc": "Leyendas Pokémon: Arceus (2022)",
+    "moviments": [
+      "Avalancha (roca)",
+      "Fuerza Equina (terra)",
+      "Triturar (sinistre)",
+      "Cabezazo Zen (psíquic)"
+    ],
+    "notes": "_No response_"
   }
 ]
