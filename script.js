@@ -65,58 +65,77 @@ function spriteUrlByDex(dex) {
   return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${dex}.png`;
 }
 
-function renderDetail(p) {
+function renderDetail(p, allPokemons) {
   const detailEl = document.getElementById("detail");
+
   if (!p) {
     detailEl.className = "muted";
     detailEl.textContent = "Clica un Pokémon de la llista per veure’n el detall.";
     return;
   }
 
+  // Trobem totes les formes capturades amb el mateix dex
+  const sameSpecies = allPokemons.filter(x => x.dex === p.dex);
+
   const dexText = p.dex ? `#${p.dex}` : "(sense #dex)";
-  const title = `${dexText} ${p.nom}`;
-
-  const tipusArr = toArray(p.tipus);
-  const movArr = toArray(p.moviments).filter(x => normalize(x) !== "_no response_");
-
-  const sprite = spriteUrlByDex(p.dex);
+  const baseName = p.nom.split("(")[0].trim();
 
   detailEl.className = "detail";
+
   detailEl.innerHTML = `
 <div class="detail-head">
-  ${sprite ? `<img src="${sprite}" alt="${p.nom}" width="120" height="120">` : ""}
-  <div>
-    <h3>${title}</h3>
-    <div class="muted">${p.regio ? p.regio : "—"}</div>
-  </div>
+  <h3>${dexText} ${baseName}</h3>
   <button class="close" id="closeDetail">Tancar</button>
 </div>
 
-<div class="grid">
-  <div class="k">Tipus</div>
-  <div class="v">
-    ${tipusArr.length ? tipusArr.map(t => `<span class="pill">${t}</span>`).join("") : "—"}
-  </div>
+<div style="margin-top:14px;">
+  ${sameSpecies.map(sp => {
+    const sprite = sp.dex
+      ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${sp.dex}.png`
+      : null;
 
-  <div class="k">Joc</div>
-  <div class="v">${p.joc ?? "—"}</div>
+    const tipus = Array.isArray(sp.tipus) && sp.tipus.length
+      ? sp.tipus.map(t => `<span class="pill">${t}</span>`).join("")
+      : "—";
 
-  <div class="k">Naturalesa</div>
-  <div class="v">${p.naturalesa ?? "—"}</div>
+    const moviments = Array.isArray(sp.moviments) && sp.moviments.length
+      ? sp.moviments.join(", ")
+      : "—";
 
-  <div class="k">Rol</div>
-  <div class="v">${p.rol ?? "—"}</div>
+    return `
+    <div style="border-top:1px solid #ddd; padding-top:10px; margin-top:10px;">
+      <div style="display:flex; gap:14px; align-items:center;">
+        ${sprite ? `<img src="${sprite}" width="96" height="96">` : ""}
+        <div>
+          <strong>${sp.nom}</strong><br>
+          <small>${sp.regio ?? "—"} · ${sp.joc ?? "—"}</small>
+        </div>
+      </div>
 
-  <div class="k">Moviments</div>
-  <div class="v">${movArr.length ? movArr.join(", ") : "—"}</div>
+      <div class="grid" style="margin-top:8px;">
+        <div class="k">Tipus</div>
+        <div class="v">${tipus}</div>
 
-  <div class="k">Notes</div>
-  <div class="v">${(p.notes ?? "").toString().trim() || "—"}</div>
+        <div class="k">Naturalesa</div>
+        <div class="v">${sp.naturalesa ?? "—"}</div>
+
+        <div class="k">Rol</div>
+        <div class="v">${sp.rol ?? "—"}</div>
+
+        <div class="k">Moviments</div>
+        <div class="v">${moviments}</div>
+
+        <div class="k">Notes</div>
+        <div class="v">${sp.notes ?? "—"}</div>
+      </div>
+    </div>
+    `;
+  }).join("")}
 </div>
 `;
 
   document.getElementById("closeDetail").addEventListener("click", () => {
-    renderDetail(null);
+    renderDetail(null, allPokemons);
   });
 }
 
@@ -189,11 +208,11 @@ function renderAll(listEl, countEl, data, query, onSelect) {
 
   const onSelect = (p) => {
     selected = p;
-    renderDetail(selected);
+    renderDetail(selected, data);
   };
 
   renderAll(listEl, countEl, data, "", onSelect);
-  renderDetail(null);
+  renderDetail(null, data);
 
   qEl.addEventListener("input", () => {
     renderAll(listEl, countEl, data, qEl.value, onSelect);
