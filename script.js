@@ -16,9 +16,17 @@ function toArray(v) {
   return [v];
 }
 
+function dexNum(x) {
+  const n = Number(x);
+  return Number.isFinite(n) ? n : null;
+}
+
 function uniqueDexCount(pokemons) {
   const set = new Set();
-  for (const p of pokemons) if (Number.isFinite(p.dex)) set.add(p.dex);
+  for (const p of pokemons) {
+    const d = dexNum(p.dex);
+    if (d) set.add(d);
+  }
   return set.size;
 }
 
@@ -60,73 +68,92 @@ ${warnings
 `;
 }
 
-function spriteUrlByDex(dex) {
-  if (!dex) return null;
-  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${dex}.png`;
+function spriteUrl(p) {
+  // pokeapi_id dona sprite correcte per formes; dex és fallback
+  const id = p?.pokeapi_id || p?.dex;
+  const n = dexNum(id);
+  if (!n) return null;
+  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${n}.png`;
 }
 
-function renderDetail(p, allPokemons) {
+function isBaseFormName(name) {
+  return !/\(.*?\)/.test((name ?? "").toString());
+}
+
+function baseSpeciesName(name) {
+  return (name ?? "").toString().split("(")[0].trim();
+}
+
+function renderDetail(selected, allPokemons) {
   const detailEl = document.getElementById("detail");
 
-  if (!p) {
+  if (!selected) {
     detailEl.className = "muted";
     detailEl.textContent = "Clica un Pokémon de la llista per veure’n el detall.";
     return;
   }
 
-  // Trobem totes les formes capturades amb el mateix dex
-  const sameSpecies = allPokemons.filter(x => x.dex === p.dex);
+  const selDex = dexNum(selected.dex);
 
-  const dexText = p.dex ? `#${p.dex}` : "(sense #dex)";
-  const baseName = p.nom.split("(")[0].trim();
+  // Agrupa per mateix dex (coerció numèrica)
+  let sameSpecies = allPokemons.filter(p => dexNum(p.dex) && dexNum(p.dex) === selDex);
+
+  // Ordena: base primer (sense parèntesis), després formes
+  sameSpecies.sort((a, b) => {
+    const aBase = isBaseFormName(a.nom) ? 0 : 1;
+    const bBase = isBaseFormName(b.nom) ? 0 : 1;
+    if (aBase !== bBase) return aBase - bBase;
+    return (a.nom ?? "").localeCompare(b.nom ?? "");
+  });
+
+  const dexText = selDex ? `#${selDex}` : "(sense #dex)";
+  const title = `${dexText} ${baseSpeciesName(selected.nom)}`;
 
   detailEl.className = "detail";
-
   detailEl.innerHTML = `
 <div class="detail-head">
-  <h3>${dexText} ${baseName}</h3>
+  <div>
+    <h3 style="margin:0 0 6px;">${title}</h3>
+    <div class="muted">Formes capturades: ${sameSpecies.length}</div>
+  </div>
   <button class="close" id="closeDetail">Tancar</button>
 </div>
 
 <div style="margin-top:14px;">
-  ${sameSpecies.map(sp => {
-    const sprite = sp.dex
-      ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${sp.dex}.png`
-      : null;
+  ${sameSpecies.map(p => {
+    const sprite = spriteUrl(p);
+    const tipusArr = toArray(p.tipus);
+    const movArr = toArray(p.moviments).filter(x => normalize(x) !== "_no response_");
 
-    const tipus = Array.isArray(sp.tipus) && sp.tipus.length
-      ? sp.tipus.map(t => `<span class="pill">${t}</span>`).join("")
-      : "—";
-
-    const moviments = Array.isArray(sp.moviments) && sp.moviments.length
-      ? sp.moviments.join(", ")
+    const tipusHtml = tipusArr.length
+      ? tipusArr.map(t => `<span class="pill">${t}</span>`).join("")
       : "—";
 
     return `
     <div style="border-top:1px solid #ddd; padding-top:10px; margin-top:10px;">
       <div style="display:flex; gap:14px; align-items:center;">
-        ${sprite ? `<img src="${sprite}" width="96" height="96">` : ""}
+        ${sprite ? `<img src="${sprite}" alt="${p.nom}" width="96" height="96">` : ""}
         <div>
-          <strong>${sp.nom}</strong><br>
-          <small>${sp.regio ?? "—"} · ${sp.joc ?? "—"}</small>
+          <strong>${p.nom}</strong><br>
+          <small>${p.regio ?? "—"} · ${p.joc ?? "—"}</small>
         </div>
       </div>
 
       <div class="grid" style="margin-top:8px;">
         <div class="k">Tipus</div>
-        <div class="v">${tipus}</div>
+        <div class="v">${tipusHtml}</div>
 
         <div class="k">Naturalesa</div>
-        <div class="v">${sp.naturalesa ?? "—"}</div>
+        <div class="v">${(p.naturalesa ?? "").toString().trim() || "—"}</div>
 
         <div class="k">Rol</div>
-        <div class="v">${sp.rol ?? "—"}</div>
+        <div class="v">${(p.rol ?? "").toString().trim() || "—"}</div>
 
         <div class="k">Moviments</div>
-        <div class="v">${moviments}</div>
+        <div class="v">${movArr.length ? movArr.join(", ") : "—"}</div>
 
         <div class="k">Notes</div>
-        <div class="v">${sp.notes ?? "—"}</div>
+        <div class="v">${(p.notes ?? "").toString().trim() || "—"}</div>
       </div>
     </div>
     `;
@@ -139,7 +166,7 @@ function renderDetail(p, allPokemons) {
   });
 }
 
-function renderList(listEl, pokemons, items, onSelect) {
+function renderList(listEl, items, onSelect) {
   listEl.innerHTML = "";
 
   for (const p of items) {
@@ -152,13 +179,14 @@ function renderList(listEl, pokemons, items, onSelect) {
     img.width = 64;
     img.height = 64;
 
-    const sprite = spriteUrlByDex(p.dex);
+    const sprite = spriteUrl(p);
     if (sprite) img.src = sprite;
     else img.style.display = "none";
 
     const text = document.createElement("div");
 
-    const dexText = p.dex ? `#${p.dex} ` : "";
+    const d = dexNum(p.dex);
+    const dexText = d ? `#${d} ` : "";
     const reg = p.regio ? ` · ${p.regio}` : "";
     const joc = p.joc ? ` — ${p.joc}` : "";
     const tipus = Array.isArray(p.tipus) && p.tipus.length ? ` [${p.tipus.join(", ")}]` : "";
@@ -187,7 +215,9 @@ function renderAll(listEl, countEl, data, query, onSelect) {
 
   updateProgress(pokemons);
   renderAnalysis(pokemons);
-  renderList(listEl, pokemons, items, onSelect);
+  renderList(listEl, items, onSelect);
+
+  return pokemons; // per passar a renderDetail
 }
 
 (async () => {
@@ -204,17 +234,18 @@ function renderAll(listEl, countEl, data, query, onSelect) {
     return;
   }
 
+  let allPokemons = Array.isArray(data) ? data : (data.pokemon ?? []);
   let selected = null;
 
   const onSelect = (p) => {
     selected = p;
-    renderDetail(selected, data);
+    renderDetail(selected, allPokemons);
   };
 
-  renderAll(listEl, countEl, data, "", onSelect);
-  renderDetail(null, data);
+  allPokemons = renderAll(listEl, countEl, data, "", onSelect);
+  renderDetail(null, allPokemons);
 
   qEl.addEventListener("input", () => {
-    renderAll(listEl, countEl, data, qEl.value, onSelect);
+    allPokemons = renderAll(listEl, countEl, data, qEl.value, onSelect);
   });
 })();
