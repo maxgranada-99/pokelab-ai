@@ -61,12 +61,13 @@ ${warnings ? `<div style="margin-top:8px;">${warnings}</div>` : `<div style="mar
 
     const text = document.createElement("div");
     const dexText = p.dex ? `#${p.dex} ` : "";
+    const regio = p.regio ? ` (${p.regio})` : "";
     const joc = p.joc ? ` — ${p.joc}` : "";
     const tipus = Array.isArray(p.tipus) && p.tipus.length ? ` [${p.tipus.join(", ")}]` : "";
     const rol = p.rol ? ` · ${p.rol}` : "";
     const notes = p.notes ? ` · ${p.notes}` : "";
 
-    text.textContent = `${dexText}${p.nom}${tipus}${joc}${rol}${notes}`;
+    text.textContent = `${dexText}${p.nom}${tipus}${regio}${joc}${rol}${notes}`;
 
     li.style.display = "flex";
     li.style.alignItems = "center";

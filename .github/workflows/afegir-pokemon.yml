@@ -14,11 +14,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Afegir entrada a data/pokedex.json
-        uses: actions/github-script@v7
+      - uses: actions/github-script@v7
         with:
           script: |
             const fs = require("fs");
@@ -53,25 +51,16 @@ jobs:
                 .replace(/\s+/g, "-");
             }
 
-            const typeMap = {
-              normal: "Normal",
-              fire: "Foc",
-              water: "Aigua",
-              electric: "Elèctric",
-              grass: "Planta",
-              ice: "Gel",
-              fighting: "Lluita",
-              poison: "Verí",
-              ground: "Terra",
-              flying: "Volador",
-              psychic: "Psíquic",
-              bug: "Bitxo",
-              rock: "Roca",
-              ghost: "Fantasma",
-              dragon: "Drac",
-              dark: "Sinistre",
-              steel: "Acer",
-              fairy: "Fada"
+            const generationToRegion = {
+              "generation-i": "Kanto",
+              "generation-ii": "Johto",
+              "generation-iii": "Hoenn",
+              "generation-iv": "Sinnoh",
+              "generation-v": "Unova",
+              "generation-vi": "Kalos",
+              "generation-vii": "Alola",
+              "generation-viii": "Galar",
+              "generation-ix": "Paldea"
             };
 
             const nom = pickField(body, "Nom");
@@ -80,16 +69,12 @@ jobs:
             const movimentsRaw = pickField(body, "Moviments");
             const notes = pickField(body, "Notes");
 
-            if (!nom) {
-              core.setFailed("Falta el camp 'Nom' a la issue.");
-              return;
-            }
-
             const slug = slugifyName(nom);
 
-            let dex = null;         // National Dex real (pokemon-species)
-            let pokeapi_id = null;  // ID del /pokemon/ (formes incloses)
+            let dex = null;
+            let pokeapi_id = null;
             let tipus = [];
+            let regio = "";
 
             try {
               const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${slug}`);
@@ -97,39 +82,43 @@ jobs:
                 const pj = await res.json();
                 pokeapi_id = pj.id;
 
-                // tipus (de /pokemon/)
-                const typesEn = (pj.types || [])
+                // Tipus
+                tipus = (pj.types || [])
                   .sort((a,b) => a.slot - b.slot)
-                  .map(t => t.type?.name)
-                  .filter(Boolean);
+                  .map(t => t.type.name);
 
-                tipus = typesEn.map(t => typeMap[t] ?? t);
-
-                // dex real (de /pokemon-species/)
+                // Species (dex real + generation)
                 if (pj.species?.url) {
                   const sRes = await fetch(pj.species.url);
                   if (sRes.ok) {
                     const sData = await sRes.json();
-                    dex = sData.id; // National Dex
+                    dex = sData.id;
+
+                    const genName = sData.generation?.name;
+                    regio = generationToRegion[genName] || genName;
                   }
                 }
-              } else {
-                console.log("PokéAPI no ha trobat el Pokémon:", slug, "status:", res.status);
+
+                // Forçar Hisui si és forma Hisui
+                if (nom.toLowerCase().includes("hisui")) {
+                  regio = "Hisui";
+                }
               }
             } catch (e) {
-              console.log("Error cridant PokéAPI:", e);
+              console.log("Error PokéAPI:", e);
             }
 
             const entry = {
               nom,
               slug,
-              dex: dex || null,
-              pokeapi_id: pokeapi_id || null,
+              dex,
+              pokeapi_id,
               tipus,
+              regio,
               naturalesa: naturalesa || "",
               joc: joc || "",
               moviments: splitList(movimentsRaw),
-              notes: notes || ""
+              notes: notes === "_No response_" ? "" : notes
             };
 
             let data = [];
@@ -137,23 +126,6 @@ jobs:
               data = JSON.parse(fs.readFileSync(path, "utf8"));
             }
 
-            // evita duplicats simples (nom + joc)
-            const key = `${entry.nom}__${entry.joc}`;
-            const exists = data.some(p => `${p.nom}__${p.joc}` === key);
-            if (exists) {
-              console.log("Ja existeix aquesta entrada:", key);
-              return;
-            }
-
             data.push(entry);
-            fs.writeFileSync(path, JSON.stringify(data, null, 2) + "\n");
-            console.log("Entrada afegida:", entry);
 
-      - name: Commit i push si hi ha canvis
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/pokedex.json
-          git diff --cached --quiet && echo "No hi ha canvis" && exit 0
-          git commit -m "Afegir Pokémon via issue"
-          git push
+            fs.writeFileSync(path, JSON.stringify(data, null, 2) + "\n");
