@@ -94,5 +94,19 @@
       "Hipnosis (psíquic)"
     ],
     "notes": ""
+  },
+  {
+    "nom": "Typhlosion",
+    "slug": "typhlosion",
+    "dex": 157,
+    "pokeapi_id": 157,
+    "tipus": [
+      "Foc"
+    ],
+    "regio": "Johto",
+    "naturalesa": "None",
+    "joc": "Pokémon Escarlata (2022)",
+    "moviments": [],
+    "notes": ""
   }
 ]
