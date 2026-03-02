@@ -29,8 +29,20 @@ function setProgress(capturedUnique, total) {
     document.getElementById("progressFill") ||
     document.getElementById("progress-fill");
 
+  // POSSIBLE 2n percentatge (si existeix al teu HTML)
+  const pctEl =
+    document.getElementById("percent") ||
+    document.getElementById("progressPercent") ||
+    document.getElementById("progress-percent");
+
   if (txt) txt.textContent = `${capturedUnique}/${total} · ${pct}%`;
-  if (fill) fill.style.width = `${pct}%`;
+  if (pctEl) pctEl.textContent = ""; // evita que surti el 2n "0%"
+
+  if (fill && fill.style) {
+    fill.style.width = `${pct}%`;
+    fill.setAttribute("aria-valuenow", String(capturedUnique));
+    fill.setAttribute("aria-valuemax", String(total));
+  }
 }
 
 function getFormsForSameDex(data, p) {
