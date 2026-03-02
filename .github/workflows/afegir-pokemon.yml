@@ -4,184 +4,187 @@ on:
   issues:
     types: [opened]
 
+permissions:
+  contents: write
+  issues: read
+
 jobs:
   add_pokemon:
     if: contains(github.event.issue.labels.*.name, 'add-pokemon')
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: write
-      issues: read
-
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: 20
 
-      - name: Actualitza pokedex.json a partir de la issue
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require("fs");
+      - name: Actualitza data/pokedex.json des de l'issue
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          node <<'NODE'
+          const fs = require("fs");
 
-            const issue = context.payload.issue;
-            const body = issue.body || "";
+          const body = process.env.ISSUE_BODY || "";
 
-            function pickField(md, label) {
-              // Busca:
-              // ### Label
-              // valor
-              const re = new RegExp(`^###\\s+${label}\\s*$([\\s\\S]*?)(?=^###\\s+|\\Z)`, "m");
-              const m = md.match(re);
-              if (!m) return "";
-              return (m[1] || "").trim();
-            }
+          function pickField(md, label) {
+            // Issue forms: "### Label\nvalor\n"
+            const re = new RegExp(`^###\\s+${label}\\s*$([\\s\\S]*?)(?=^###\\s+|\\Z)`, "m");
+            const m = md.match(re);
+            return (m ? (m[1] || "") : "").trim();
+          }
 
-            function splitList(s) {
-              if (!s) return [];
-              const parts = s
-                .split(/\r?\n|,/)
-                .map(x => x.trim())
-                .filter(Boolean)
-                .filter(x => x !== "_No response_");
-              return [...new Set(parts)];
-            }
+          function splitList(s) {
+            if (!s) return [];
+            return [...new Set(
+              s.split(/\r?\n|,/).map(x => x.trim()).filter(Boolean).filter(x => x !== "_No response_")
+            )];
+          }
 
-            function slugify(s) {
-              return (s ?? "")
-                .toString()
-                .trim()
-                .toLowerCase()
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/[’']/g, "")
-                .replace(/[^a-z0-9\s-]/g, "")
-                .replace(/\s+/g, "-")
-                .replace(/-+/g, "-");
-            }
+          function slugify(s) {
+            return (s ?? "")
+              .toString()
+              .trim()
+              .toLowerCase()
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .replace(/[’']/g, "")
+              .replace(/[^a-z0-9\s-]/g, "")
+              .replace(/\s+/g, "-")
+              .replace(/-+/g, "-");
+          }
 
-            const TYPE_CA = {
-              normal: "Normal",
-              fire: "Foc",
-              water: "Aigua",
-              electric: "Elèctric",
-              grass: "Planta",
-              ice: "Gel",
-              fighting: "Lluita",
-              poison: "Verí",
-              ground: "Terra",
-              flying: "Volador",
-              psychic: "Psíquic",
-              bug: "Bitxo",
-              rock: "Roca",
-              ghost: "Fantasma",
-              dragon: "Drac",
-              dark: "Sinistre",
-              steel: "Acer",
-              fairy: "Fada",
-            };
+          const TYPE_CA = {
+            normal: "Normal",
+            fire: "Foc",
+            water: "Aigua",
+            electric: "Elèctric",
+            grass: "Planta",
+            ice: "Gel",
+            fighting: "Lluita",
+            poison: "Verí",
+            ground: "Terra",
+            flying: "Volador",
+            psychic: "Psíquic",
+            bug: "Bitxo",
+            rock: "Roca",
+            ghost: "Fantasma",
+            dragon: "Drac",
+            dark: "Sinistre",
+            steel: "Acer",
+            fairy: "Fada",
+          };
 
-            // Camps del formulari (issue template)
-            const nomRaw = pickField(body, "Nom");
-            const joc = pickField(body, "Joc");
-            const regio = pickField(body, "Regió");
-            const naturalesa = pickField(body, "Naturalesa");
-            const movimentsRaw = pickField(body, "Moviments (un per línia o separats per coma)") || pickField(body, "Moviments");
-            const notes = pickField(body, "Notes");
+          async function fetchJson(url) {
+            const res = await fetch(url, { headers: { "User-Agent": "pokelab-ai" } });
+            if (!res.ok) throw new Error(`HTTP ${res.status} a ${url}`);
+            return await res.json();
+          }
 
-            if (!nomRaw) core.setFailed("Falta el camp 'Nom'");
+          const nomRaw = pickField(body, "Nom");
+          const regioRaw = pickField(body, "Regió");
+          const joc = pickField(body, "Joc");
+          const naturalesa = pickField(body, "Naturalesa");
+          const movimentsRaw = pickField(body, "Moviments");
+          const notes = pickField(body, "Notes");
 
-            // Detecta forma amb parèntesis: "Typhlosion (Hisui)"
-            let baseName = nomRaw;
-            let forma = "";
-            const m = nomRaw.match(/^(.*?)\s*\((.*?)\)\s*$/);
-            if (m) {
-              baseName = (m[1] || "").trim();
-              forma = (m[2] || "").trim();
-            }
+          if (!nomRaw) {
+            console.log("Falta el camp Nom.");
+            process.exit(0);
+          }
 
-            const baseSlug = slugify(baseName);
-            const formSlug = forma ? slugify(forma) : "";
-            const pokeapiName = formSlug ? `${baseSlug}-${formSlug}` : baseSlug;
+          // Si el nom ve amb parèntesis, el respectem.
+          let baseName = nomRaw;
+          let forma = "";
+          const m = nomRaw.match(/^(.*?)\s*\((.*?)\)\s*$/);
+          if (m) {
+            baseName = (m[1] || "").trim();
+            forma = (m[2] || "").trim();
+          }
 
-            async function fetchJson(url) {
-              const res = await fetch(url, { headers: { "User-Agent": "pokelab-ai" } });
-              if (!res.ok) throw new Error(`HTTP ${res.status} a ${url}`);
-              return await res.json();
-            }
+          // Si NO hi ha forma al nom, però la Regió és una regió amb formes, la convertim a "forma".
+          const regio = (regioRaw || "").trim();
+          const regionalForms = new Set(["Alola", "Galar", "Hisui", "Paldea"]);
+          if (!forma && regionalForms.has(regio)) {
+            forma = regio; // ex. Hisui
+          }
 
-            // 1) DEX nacional = species id del baseName (sempre)
-            // 2) pokeapiId = pokemon id del pokeapiName (forma o base)
-            // 3) tipus = del pokemon (forma o base)
-            let dex = null;
-            let pokeapiId = null;
-            let tipus = [];
+          const baseSlug = slugify(baseName);
+          const formSlug = forma ? slugify(forma) : "";
+          const pokeSlug = formSlug ? `${baseSlug}-${formSlug}` : baseSlug;
 
+          // Dades automàtiques
+          let dex = null;       // nacional (species id del base)
+          let pokeapiId = null; // id del pokemon (forma)
+          let tipus = [];
+
+          // dex (sempre del base)
+          try {
+            const species = await fetchJson(`https://pokeapi.co/api/v2/pokemon-species/${baseSlug}`);
+            dex = species.id ?? null;
+          } catch (e) {
+            console.log(`WARN: no puc obtenir dex species per ${baseSlug}: ${e.message}`);
+          }
+
+          // pokeapiId + tipus (de la forma si n'hi ha)
+          try {
+            const pkm = await fetchJson(`https://pokeapi.co/api/v2/pokemon/${pokeSlug}`);
+            pokeapiId = pkm.id ?? null;
+            tipus = (pkm.types || [])
+              .sort((a,b) => (a.slot ?? 99) - (b.slot ?? 99))
+              .map(t => TYPE_CA[t.type?.name] || t.type?.name)
+              .filter(Boolean);
+          } catch (e) {
+            // fallback: si la forma no existeix, prova base
+            console.log(`WARN: no puc obtenir pokemon per ${pokeSlug}: ${e.message}`);
             try {
-              const species = await fetchJson(`https://pokeapi.co/api/v2/pokemon-species/${baseSlug}`);
-              dex = species.id;
-            } catch (e) {
-              core.warning(`No he pogut obtenir species per ${baseSlug}: ${e.message}`);
-            }
-
-            try {
-              const pkm = await fetchJson(`https://pokeapi.co/api/v2/pokemon/${pokeapiName}`);
-              pokeapiId = pkm.id;
-              tipus = (pkm.types || [])
+              const pkm2 = await fetchJson(`https://pokeapi.co/api/v2/pokemon/${baseSlug}`);
+              pokeapiId = pkm2.id ?? null;
+              tipus = (pkm2.types || [])
                 .sort((a,b) => (a.slot ?? 99) - (b.slot ?? 99))
                 .map(t => TYPE_CA[t.type?.name] || t.type?.name)
                 .filter(Boolean);
-            } catch (e) {
-              core.warning(`No he pogut obtenir pokemon per ${pokeapiName}: ${e.message}`);
+            } catch (e2) {
+              console.log(`WARN: tampoc puc obtenir pokemon base per ${baseSlug}: ${e2.message}`);
             }
+          }
 
-            // Construeix entrada
-            const entry = {
-              nom: nomRaw,
-              baseName,
-              forma: forma || "",
-              dex: dex ?? null,
-              pokeapiId: pokeapiId ?? null,
-              regio: (regio || (forma || "")) || "",
-              joc: joc || "",
-              naturalesa: naturalesa || "",
-              moviments: splitList(movimentsRaw),
-              notes: notes || "",
-              tipus,
-            };
+          const entry = {
+            nom: nomRaw.trim(),
+            baseName,
+            forma: forma || "",
+            dex: dex ?? null,
+            pokeapiId: pokeapiId ?? null,
+            regio: regio === "Normal (sense forma regional)" ? "" : regio,
+            joc: joc || "",
+            naturalesa: naturalesa || "",
+            moviments: splitList(movimentsRaw),
+            notes: notes || "",
+            tipus
+          };
 
-            // Llegeix pokedex.json (array)
-            const path = "data/pokedex.json";
-            const raw = fs.existsSync(path) ? fs.readFileSync(path, "utf8").trim() : "[]";
-            let data;
+          // Llegeix pokedex.json
+          const path = "data/pokedex.json";
+          const raw = fs.existsSync(path) ? fs.readFileSync(path, "utf8").trim() : "[]";
+          let data = JSON.parse(raw || "[]");
+          if (!Array.isArray(data)) data = [];
 
-            try {
-              data = JSON.parse(raw || "[]");
-            } catch (e) {
-              core.setFailed(`pokedex.json no és JSON vàlid: ${e.message}`);
-              return;
-            }
+          // Evita duplicats: base+forma+joc
+          const key = `${slugify(entry.baseName)}|${slugify(entry.forma)}|${slugify(entry.joc)}`;
+          const exists = data.some(p => `${slugify(p.baseName || p.nom)}|${slugify(p.forma)}|${slugify(p.joc)}` === key);
 
-            if (!Array.isArray(data)) {
-              core.setFailed("pokedex.json ha de ser un ARRAY ([])");
-              return;
-            }
-
-            // Evita duplicats pel mateix (base+forma+joc)
-            const key = `${slugify(entry.baseName)}|${slugify(entry.forma)}|${slugify(entry.joc)}`;
-            const exists = data.some(p => `${slugify(p.baseName || p.nom)}|${slugify(p.forma)}|${slugify(p.joc)}` === key);
-
-            if (exists) {
-              console.log("Ja existeix:", key);
-            } else {
-              data.push(entry);
-              fs.writeFileSync(path, JSON.stringify(data, null, 2) + "\n");
-              console.log("Entrada afegida:", entry);
-            }
+          if (exists) {
+            console.log("Ja existeix, no afegeixo duplicat:", key);
+          } else {
+            data.push(entry);
+            fs.writeFileSync(path, JSON.stringify(data, null, 2) + "\n");
+            console.log("Entrada afegida:", entry);
+          }
+          NODE
 
       - name: Commit i push si hi ha canvis
         run: |
@@ -189,5 +192,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/pokedex.json
           git diff --cached --quiet && echo "No hi ha canvis" && exit 0
-          git commit -m "chore: afegeix Pokémon via issue (pokeapiId per formes)"
+          git commit -m "chore: afegeix pokemon via issue (regio->forma + pokeapiId)"
           git push

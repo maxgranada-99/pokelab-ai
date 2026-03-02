@@ -1,96 +1,52 @@
 name: "Afegir Pokémon"
-description: "Afegeix un Pokémon a la Pokédex personal"
+description: "Afegeix un Pokémon a la teva Pokédex personal"
 title: "[Pokédex] Afegir:"
+labels: ["add-pokemon"]
 body:
   - type: input
     id: nom
     attributes:
       label: Nom
-      description: "Ex.: Umbreon, Typhlosion (Hisui)"
+      description: "Ex.: Typhlosion, Pikachu, Rapidash. (No cal posar (Hisui); ho farem amb Regió.)"
       placeholder: "Nom del Pokémon"
     validations:
       required: true
 
   - type: dropdown
-    id: joc
+    id: regio
     attributes:
-      label: Joc
-      multiple: false
+      label: Regió
+      description: "Tria la regió associada. Per formes regionals, tria Hisui/Alola/Galar/Paldea."
       options:
-        - Pokémon Rojo (1996)
-        - Pokémon Verde (1996)
-        - Pokémon Azul (1996)
-        - Pokémon Amarillo (1998)
-        - Pokémon Oro (1999)
-        - Pokémon Plata (1999)
-        - Pokémon Cristal (2000)
-        - Pokémon Rubí (2002)
-        - Pokémon Zafiro (2002)
-        - Pokémon Rojo Fuego (2004)
-        - Pokémon Verde Hoja (2004)
-        - Pokémon Esmeralda (2004)
-        - Pokémon Diamante (2006)
-        - Pokémon Perla (2006)
-        - Pokémon Platino (2008)
-        - Pokémon Oro HeartGold (2009)
-        - Pokémon Plata SoulSilver (2009)
-        - Pokémon Negro (2010)
-        - Pokémon Blanco (2010)
-        - Pokémon Negro 2 (2012)
-        - Pokémon Blanco 2 (2012)
-        - Pokemon X (2013)
-        - Pokémon Y (2013)
-        - Pokémon Rubí Omega (2014)
-        - Pokémon Zafiro Alfa (2014)
-        - Pokémon Sol (2016)
-        - Pokémon Luna (2016)
-        - Pokémon Go (2016)
-        - Pokémon Ultrasol (2017)
-        - Pokémon Ultraluna (2017)
-        - 'Pokémon: Lets Go, Pikachu! (2018)'
-        - 'Pokémon: Lets Go, Eevee! (2018)'
-        - Pokémon Espada (2019)
-        - Pokémon Escudo (2019)
-        - Pokémon Diamante Brillante (2021)
-        - Pokémon Perla Reluciente (2021)
-        - 'Leyendas Pokémon: Arceus (2022)'
-        - Pokémon Escarlata (2022)
-        - Pokémon Púrpura (2022)
-        - 'Leyendas Pokémon: Z-A (2025)'
+        - "Normal (sense forma regional)"
+        - "Kanto"
+        - "Johto"
+        - "Hoenn"
+        - "Sinnoh"
+        - "Unova"
+        - "Kalos"
+        - "Alola"
+        - "Galar"
+        - "Hisui"
+        - "Paldea"
     validations:
       required: true
 
-  - type: dropdown
+  - type: input
+    id: joc
+    attributes:
+      label: Joc
+      description: "Ex.: Legends Arceus, Pokémon Escarlata, etc."
+      placeholder: "Joc on l'has capturat"
+    validations:
+      required: true
+
+  - type: input
     id: naturalesa
     attributes:
       label: Naturalesa
-      multiple: false
-      options:
-        - Fuerte (Hardy)
-        - Osada (Bold)
-        - Modesta (Modest)
-        - Serena (Calm)
-        - Miedosa (Timid)
-        - Huraña (Lonely)
-        - Dócil (Docile)
-        - Afable (Mild)
-        - Amable (Gentle)
-        - Activa (Hasty)
-        - Firme (Adamant)
-        - Agitada (Impish)
-        - Tímida (Bashful)
-        - Cauta (Careful)
-        - Alegre (Jolly)
-        - Pícara (Naughty)
-        - Floja (Lax)
-        - Alocada (Rash)
-        - Rara (Quirky)
-        - Ingenua (Naive)
-        - Audaz (Brave)
-        - Plácida (Relaxed)
-        - Mansa (Quiet)
-        - Grosera (Sassy)
-        - Seria (Serious)
+      description: "Ex.: Alegre, Modesta, etc. (si no ho saps, deixa-ho buit)"
+      placeholder: "Naturalesa (opcional)"
     validations:
       required: false
 
@@ -98,8 +54,8 @@ body:
     id: moviments
     attributes:
       label: Moviments
-      description: "Un per línia o separats per coma"
-      placeholder: "Lanzallamas\nInfortunio\nRapidez\nRodar"
+      description: "Un per línia o separats per coma. (Opcional)"
+      placeholder: "Ex.: Lanzallamas\nInfortunio\nRapidez\nRodar"
     validations:
       required: false
 
@@ -107,6 +63,7 @@ body:
     id: notes
     attributes:
       label: Notes
-      placeholder: "Qualsevol anotació"
+      description: "Qualsevol nota (opcional)"
+      placeholder: "Ex.: evolucionat des de..."
     validations:
       required: false
