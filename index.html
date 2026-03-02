@@ -1,35 +1,67 @@
 <!doctype html>
 <html lang="ca">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>PokéLab AI — Pokédex personal</title>
-    <style>
-      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; }
-      header { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
-      input { padding: 10px 12px; min-width: 260px; }
-      .muted { opacity: 0.7; }
-      ul { padding-left: 18px; }
-      li { margin: 8px 0; }
-      code { background: #f4f4f4; padding: 2px 6px; border-radius: 6px; }
-    </style>
-  </head>
-  <body>
-    <header>
-      <h1>Pokédex personal</h1>
-      <span class="muted" id="count">Carregant...</span>
-    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PokéLab AI — Pokédex personal</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 32px; }
+    header { display:flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+    h1 { margin: 0; }
+    .muted { color:#555; }
+    .box { margin: 16px 0 24px; max-width: 720px; }
+    .progress-wrap { display:flex; align-items:center; gap: 12px; }
+    .progress-bar {
+      position: relative;
+      width: min(520px, 100%);
+      height: 14px;
+      border: 1px solid #222;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #f2f2f2;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: #1a1a1a;
+      transition: width .25s ease;
+    }
+    .progress-text { font-variant-numeric: tabular-nums; }
+    input[type="search"] { padding: 8px 10px; width: min(520px, 100%); }
+    ul { padding-left: 18px; }
+    li { margin: 10px 0; }
+  </style>
+</head>
 
-    <p class="muted">Dades: <code>data/pokedex.json</code></p>
+<body>
+  <header>
+    <h1>Pokédex personal</h1>
+    <span class="muted" id="count">Carregant…</span>
+  </header>
 
-    <input id="q" type="search" placeholder="Cerca per nom (ex.: gengar, leafeon)..." />
-<section>
-  <h2>Anàlisi ràpida</h2>
-  <div id="analysis" class="muted">Carregant anàlisi...</div>
-</section>
+  <p class="muted">Dades: <code>data/pokedex.json</code></p>
+
+  <div class="box">
+    <div class="progress-wrap">
+      <div class="progress-bar" aria-label="Progrés Pokédex">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-text" id="progressText">—</div>
+    </div>
+  </div>
+
+  <input id="q" type="search" placeholder="Cerca per nom (ex.: gengar, leafeon)" />
+
+  <section class="box">
+    <h2>Anàlisi ràpida</h2>
+    <div id="analysis" class="muted">Carregant anàlisi…</div>
+  </section>
+
+  <section class="box">
     <h2>Llista</h2>
     <ul id="list"></ul>
+  </section>
 
-    <script src="./script.js"></script>
-  </body>
+  <script src="./script.js"></script>
+</body>
 </html>
