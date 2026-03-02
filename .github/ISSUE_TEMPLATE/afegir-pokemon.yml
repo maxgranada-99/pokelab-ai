@@ -16,15 +16,9 @@ body:
     id: regio
     attributes:
       label: Regió
-      description: "Tria la regió associada. Per formes regionals, tria Hisui/Alola/Galar/Paldea."
+      description: "AQUÍ vol dir forma regional. Si no és una forma regional, deixa Normal."
       options:
-        - "Normal (sense forma regional)"
-        - "Kanto"
-        - "Johto"
-        - "Hoenn"
-        - "Sinnoh"
-        - "Unova"
-        - "Kalos"
+        - "Normal"
         - "Alola"
         - "Galar"
         - "Hisui"
@@ -32,23 +26,89 @@ body:
     validations:
       required: true
 
-  - type: input
+  - type: dropdown
     id: joc
     attributes:
       label: Joc
-      description: "Ex.: Legends Arceus, Pokémon Escarlata, etc."
-      placeholder: "Joc on l'has capturat"
+      description: "Tria el joc on l'has capturat."
+      options:
+        - "Pokémon Rojo"
+        - "Pokémon Verde"
+        - "Pokémon Azul"
+        - "Pokémon Amarillo"
+        - "Pokémon Oro"
+        - "Pokémon Plata"
+        - "Pokémon Cristal"
+        - "Pokémon Rubí"
+        - "Pokémon Zafiro"
+        - "Pokémon Rojo Fuego"
+        - "Pokémon Verde Hoja"
+        - "Pokémon Esmeralda"
+        - "Pokémon Diamante"
+        - "Pokémon Perla"
+        - "Pokémon Platino"
+        - "Pokémon Oro HeartGold"
+        - "Pokémon Plata SoulSilver"
+        - "Pokémon Negro"
+        - "Pokémon Blanco"
+        - "Pokémon Negro 2"
+        - "Pokémon Blanco 2"
+        - "Pokemon X"
+        - "Pokémon Y"
+        - "Pokémon Rubí Omega"
+        - "Pokémon Zafiro Alfa"
+        - "Pokémon Sol"
+        - "Pokémon Luna"
+        - "Pokémon Go"
+        - "Pokémon Ultrasol"
+        - "Pokémon Ultraluna"
+        - "Pokémon: Let's Go, Pikachu!"
+        - "Pokémon: Let's Go, Eevee!"
+        - "Pokémon Espada"
+        - "Pokémon Escudo"
+        - "Pokémon Diamante Brillante"
+        - "Pokémon Perla Reluciente"
+        - "Leyendas Pokémon: Arceus"
+        - "Pokémon Escarlata"
+        - "Pokémon Púrpura"
+        - "Leyendas Pokémon: Z-A"
     validations:
       required: true
 
-  - type: input
+  - type: dropdown
     id: naturalesa
     attributes:
       label: Naturalesa
-      description: "Ex.: Alegre, Modesta, etc. (si no ho saps, deixa-ho buit)"
-      placeholder: "Naturalesa (opcional)"
+      description: "Si no ho saps, tria “(cap)”."
+      options:
+        - "(cap)"
+        - "Fuerte"
+        - "Osada"
+        - "Modesta"
+        - "Serena"
+        - "Miedosa"
+        - "Huraña"
+        - "Dócil"
+        - "Afable"
+        - "Amable"
+        - "Activa"
+        - "Firme"
+        - "Agitada"
+        - "Tímida"
+        - "Cauta"
+        - "Alegre"
+        - "Pícara"
+        - "Floja"
+        - "Alocada"
+        - "Rara"
+        - "Ingenua"
+        - "Audaz"
+        - "Plácida"
+        - "Mansa"
+        - "Grosera"
+        - "Seria"
     validations:
-      required: false
+      required: true
 
   - type: textarea
     id: moviments
