@@ -1,0 +1,150 @@
+name: Migrar Pokédex (omplir dex i tipus)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Omplir dex i tipus amb PokéAPI
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+
+            const PATH = "data/pokedex.json";
+
+            const typeMap = {
+              normal: "Normal",
+              fire: "Foc",
+              water: "Aigua",
+              electric: "Elèctric",
+              grass: "Planta",
+              ice: "Gel",
+              fighting: "Lluita",
+              poison: "Verí",
+              ground: "Terra",
+              flying: "Volador",
+              psychic: "Psíquic",
+              bug: "Bitxo",
+              rock: "Roca",
+              ghost: "Fantasma",
+              dragon: "Drac",
+              dark: "Sinistre",
+              steel: "Acer",
+              fairy: "Fada"
+            };
+
+            function normalizeText(s) {
+              return (s ?? "")
+                .toString()
+                .trim()
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "");
+            }
+
+            function slugBase(name) {
+              return normalizeText(name)
+                .replace(/\(.*?\)/g, "")         // treu parèntesis
+                .replace(/[^a-z0-9\s-]/g, "")     // treu puntuació
+                .trim()
+                .replace(/\s+/g, "-");
+            }
+
+            function slugPokemon(nom) {
+              const raw = (nom ?? "").toString().trim();
+              const base = slugBase(raw);
+
+              const m = raw.match(/\((.*?)\)/);
+              if (!m) return base;
+
+              const form = normalizeText(m[1]);
+
+              // formes regionals més comunes a PokéAPI
+              if (form.includes("hisui")) return `${base}-hisui`;
+              if (form.includes("alola")) return `${base}-alola`;
+              if (form.includes("galar")) return `${base}-galar`;
+              if (form.includes("paldea")) return `${base}-paldea`;
+
+              // si no reconeixem la forma, provem sense forma
+              return base;
+            }
+
+            function cleanMoves(moviments) {
+              if (!Array.isArray(moviments)) return moviments;
+              return moviments.filter(x => (x ?? "").toString().trim() && (x ?? "") !== "_No response_");
+            }
+
+            async function fetchPokemon(slug) {
+              const url = `https://pokeapi.co/api/v2/pokemon/${slug}`;
+              const res = await fetch(url);
+              if (!res.ok) throw new Error(`PokéAPI ${res.status} per ${slug}`);
+              return res.json();
+            }
+
+            // 1) Llegeix
+            const raw = fs.readFileSync(PATH, "utf8");
+            let data = JSON.parse(raw);
+            const pokemons = Array.isArray(data) ? data : (data.pokemon ?? []);
+
+            let changed = false;
+
+            for (const p of pokemons) {
+              // neteja moviments “_No response_”
+              const cleaned = cleanMoves(p.moviments);
+              if (cleaned !== p.moviments) {
+                p.moviments = cleaned;
+                changed = true;
+              }
+
+              // ja està complet
+              if (p.dex && Array.isArray(p.tipus) && p.tipus.length) continue;
+
+              const slug = slugPokemon(p.nom);
+              try {
+                const info = await fetchPokemon(slug);
+
+                if (!p.dex) {
+                  p.dex = info.id;
+                  changed = true;
+                }
+
+                if (!Array.isArray(p.tipus) || p.tipus.length === 0) {
+                  const typesEn = (info.types ?? [])
+                    .sort((a,b) => a.slot - b.slot)
+                    .map(t => t.type?.name)
+                    .filter(Boolean);
+
+                  p.tipus = typesEn.map(t => typeMap[t] ?? t);
+                  changed = true;
+                }
+              } catch (e) {
+                console.log(`⚠️ No he pogut completar: "${p.nom}" (slug: ${slug}) -> ${e.message}`);
+              }
+            }
+
+            // 2) Escriu
+            const out = JSON.stringify(Array.isArray(data) ? pokemons : { pokemon: pokemons }, null, 2) + "\n";
+            fs.writeFileSync(PATH, out, "utf8");
+
+            console.log(changed ? "✅ Migració feta (hi ha canvis)" : "ℹ️ No hi havia res per migrar");
+
+      - name: Commit i push si hi ha canvis
+        run: |
+          if git diff --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/pokedex.json
+          git commit -m "chore: migrar pokedex (omplir dex i tipus)"
+          git push
