@@ -10,40 +10,48 @@ function normalize(s) {
 
 function render(listEl, countEl, data, query) {
   const q = normalize(query);
-  const items = (data.pokemon ?? []).filter(p => normalize(p.nom).includes(q));
 
-  countEl.textContent = `${items.length} / ${(data.pokemon ?? []).length} Pokémon mostrats`;
-const analysisEl = document.getElementById("analysis");
+  // Ara pokedex.json és un ARRAY (però mantenim compatibilitat per si algun dia tornes a {pokemon:[]})
+  const pokemons = Array.isArray(data) ? data : (data.pokemon ?? []);
+  const items = pokemons.filter(p => normalize(p.nom).includes(q));
 
-const countsByRole = {};
-for (const p of (data.pokemon ?? [])) {
-  const r = (p.rol ?? "sense rol").toString().trim().toLowerCase();
-  countsByRole[r] = (countsByRole[r] ?? 0) + 1;
-}
+  countEl.textContent = `${items.length} / ${pokemons.length} Pokémon mostrats`;
 
-const roleLines = Object.entries(countsByRole)
-  .sort((a, b) => b[1] - a[1])
-  .map(([role, n]) => `- ${role}: ${n}`)
-  .join("\n");
+  const analysisEl = document.getElementById("analysis");
 
-const warnings = Object.entries(countsByRole)
-  .filter(([, n]) => n >= 2)
-  .map(([role, n]) => `⚠️ Tens ${n} Pokémon amb el rol “${role}”.`)
-  .join("<br>");
+  // Anàlisi ràpida per rol (si no hi ha rol, compta com "sense rol")
+  const countsByRole = {};
+  for (const p of pokemons) {
+    const r = (p.rol ?? "sense rol").toString().trim().toLowerCase();
+    countsByRole[r] = (countsByRole[r] ?? 0) + 1;
+  }
 
-analysisEl.innerHTML = `
+  const roleLines = Object.entries(countsByRole)
+    .sort((a, b) => b[1] - a[1])
+    .map(([role, n]) => `- ${role}: ${n}`)
+    .join("\n");
+
+  const warnings = Object.entries(countsByRole)
+    .filter(([, n]) => n >= 2)
+    .map(([role, n]) => `⚠️ Tens ${n} Pokémon amb el rol “${role}”.`)
+    .join("<br>");
+
+  analysisEl.innerHTML = `
 <pre style="margin:0; white-space:pre-wrap;">${roleLines || "- (encara no hi ha dades)"}</pre>
 ${warnings ? `<div style="margin-top:8px;">${warnings}</div>` : `<div style="margin-top:8px;">✅ Rols bastant equilibrats (de moment).</div>`}
 `;
+
+  // Render llista
   listEl.innerHTML = "";
   for (const p of items) {
     const li = document.createElement("li");
-    const joc = p.joc ? ` — ${p.joc}` : "";
-const tipus = p.tipus ? ` [${p.tipus.join(", ")}]` : "";
-const rol = p.rol ? ` · ${p.rol}` : "";
-const notes = p.notes ? ` · ${p.notes}` : "";
 
-li.textContent = `${p.nom}${tipus}${joc}${rol}${notes}`;
+    const joc = p.joc ? ` — ${p.joc}` : "";
+    const tipus = Array.isArray(p.tipus) && p.tipus.length ? ` [${p.tipus.join(", ")}]` : "";
+    const rol = p.rol ? ` · ${p.rol}` : "";
+    const notes = p.notes ? ` · ${p.notes}` : "";
+
+    li.textContent = `${p.nom}${tipus}${joc}${rol}${notes}`;
     listEl.appendChild(li);
   }
 }
