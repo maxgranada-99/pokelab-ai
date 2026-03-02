@@ -16,14 +16,18 @@ function dexNum(v) {
 }
 
 function spriteUrl(p) {
-  // PRIORITAT: pokeapiId (formes) > dex (nacional)
+  // PRIORITAT: pokeapiName (formes) > pokeapiId (si algun dia el fem servir) > dex
+  const name = (p?.pokeapiName ?? "").toString().trim().toLowerCase();
+  if (name) {
+    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${name}.png`;
+  }
+
   const id = dexNum(p?.pokeapiId) ?? dexNum(p?.dex);
   if (!id) return null;
   return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 }
 
 function baseKey(p) {
-  // baseName > nom sense parèntesis
   const bn = (p?.baseName ?? "").toString().trim();
   if (bn) return bn;
   const nom = (p?.nom ?? "").toString();
@@ -52,8 +56,7 @@ function groupByBase(pokemons) {
     map.get(key).push(p);
   }
 
-  // ordena formes: primer la "normal" (sense forma o forma buida), després la resta
-  for (const [k, arr] of map.entries()) {
+  for (const [, arr] of map.entries()) {
     arr.sort((a, b) => {
       const fa = normalize(a.forma || "");
       const fb = normalize(b.forma || "");
@@ -205,23 +208,14 @@ function openModalForGroup(baseName, forms) {
 function renderList(listEl, groups, query) {
   const q = normalize(query);
 
-  // fem un array de "entries" per pintar
   const entries = [];
   for (const [base, forms] of groups.entries()) {
-    // el filtre busca pel nom de qualsevol forma (inclosa Hisui)
     const match = forms.some(p => normalize(p.nom).includes(q));
     if (!match) continue;
 
-    // dades resum: mostra el "normal" si existeix, si no el primer
     const primary = forms.find(p => !normalize(p.forma || "")) ?? forms[0];
-
     const d = dexNum(primary.dex);
-    entries.push({
-      base,
-      forms,
-      primary,
-      dex: d ?? 99999, // per ordenar
-    });
+    entries.push({ base, forms, primary, dex: d ?? 99999 });
   }
 
   entries.sort((a, b) => a.dex - b.dex);
@@ -251,7 +245,6 @@ function renderList(listEl, groups, query) {
     else img.style.display = "none";
 
     const text = document.createElement("div");
-
     const extraForms = e.forms.length > 1 ? ` · +${e.forms.length - 1} forma/es` : "";
     text.textContent = `${labelLine(e.primary)}${extraForms}`;
 
@@ -259,10 +252,7 @@ function renderList(listEl, groups, query) {
     row.appendChild(text);
     li.appendChild(row);
 
-    li.addEventListener("click", () => {
-      openModalForGroup(e.base, e.forms);
-    });
-
+    li.addEventListener("click", () => openModalForGroup(e.base, e.forms));
     listEl.appendChild(li);
   }
 
