@@ -53,6 +53,51 @@ function setProgress(capturedUnique, total) {
     bar.setAttribute("aria-valuemax", String(total));
   }
 }
+function renderDetail(p) {
+  const detailEl = document.getElementById("detail");
+  if (!detailEl) return;
+
+  const dex = dexNum(p.dex);
+  const dexText = dex ? `#${dex} ` : "";
+
+  const spriteId = p.pokeapiId ?? dex;
+  const sprite = spriteId
+    ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${spriteId}.png`
+    : "";
+
+  const tipus = Array.isArray(p.tipus) && p.tipus.length ? p.tipus.join(", ") : "—";
+  const movs = Array.isArray(p.moviments) ? p.moviments.filter(x => x && x !== "_No response_") : [];
+  const movText = movs.length ? movs.join(", ") : "—";
+
+  detailEl.className = "detail";
+  detailEl.innerHTML = `
+    <div class="detail-head">
+      ${sprite ? `<img src="${sprite}" alt="${p.nom}" onerror="this.style.display='none'">` : ""}
+      <div style="flex:1">
+        <h3>${dexText}${p.nom}</h3>
+        <div class="muted">${p.baseName ? `Base: ${p.baseName}` : ""}${p.forma ? ` · Forma: ${p.forma}` : ""}</div>
+      </div>
+      <button class="close" id="closeDetail">Tancar</button>
+    </div>
+
+    <div class="grid">
+      <div class="k">Tipus</div><div class="v">${tipus}</div>
+      <div class="k">Regió</div><div class="v">${p.regio || "—"}</div>
+      <div class="k">Joc</div><div class="v">${p.joc || "—"}</div>
+      <div class="k">Naturalesa</div><div class="v">${p.naturalesa || "—"}</div>
+      <div class="k">Moviments</div><div class="v">${movText}</div>
+      <div class="k">Notes</div><div class="v">${p.notes || "—"}</div>
+    </div>
+  `;
+
+  const btn = document.getElementById("closeDetail");
+  if (btn) {
+    btn.onclick = () => {
+      detailEl.className = "muted";
+      detailEl.textContent = "Clica un Pokémon de la llista per veure’n el detall.";
+    };
+  }
+}
 
 function render(listEl, countEl, data, query) {
   const q = normalize(query);
@@ -133,6 +178,8 @@ ${warnings ? `<div style="margin-top:8px;">${warnings}</div>` : `<div style="mar
 
     li.appendChild(img);
     li.appendChild(text);
+    li.style.cursor = "pointer";
+    li.addEventListener("click", () => renderDetail(p));
     listEl.appendChild(li);
   }
 }
