@@ -130,6 +130,8 @@ function renderDetail(data, p) {
   const title = `${dexText}${p.baseName || p.nom}`;
   const regionLine = p.regio ? `Regió: ${p.regio}` : (p.forma ? `Regió: ${p.forma}` : "");
 
+  console.log("renderDetail executat", p.nom);
+
   openModal(
     title,
     regionLine,
@@ -211,7 +213,10 @@ ${warnings ? `<div style="margin-top:8px;">${warnings}</div>` : `<div style="mar
     li.appendChild(img);
     li.appendChild(text);
 
-    li.addEventListener("click", () => renderDetail(data, p));
+    li.addEventListener("click", () => {
+      console.log("CLICK:", p.nom);
+      renderDetail(data, p);
+    });
 
     listEl.appendChild(li);
   }
