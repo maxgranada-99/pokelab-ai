@@ -22,60 +22,77 @@ jobs:
         with:
           node-version: 20
 
-      -       - name: Actualitza data/pokedex.json des de l'issue (upsert)
+      - name: Actualitza data/pokedex.json des de l'issue (upsert)
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
           node --input-type=commonjs <<'NODE'
-          (async () => {
-            const fs = require("fs");
+          const fs = require("fs");
 
-            // 👇 IMPORTANT: TOT el teu codi JS ha d’estar AQUÍ DINS (sense res fora del NODE)
-            const body = process.env.ISSUE_BODY || "";
+          const body = process.env.ISSUE_BODY || "";
 
-            function pickField(md, label) {
-              const re = new RegExp(`^###\\s+${label}\\s*$([\\s\\S]*?)(?=^###\\s+|\\Z)`, "m");
-              const m = md.match(re);
-              return (m ? (m[1] || "") : "").trim();
-            }
+          function pickField(md, label) {
+            const re = new RegExp(`^###\\s+${label}\\s*$([\\s\\S]*?)(?=^###\\s+|\\Z)`, "m");
+            const m = md.match(re);
+            return (m ? (m[1] || "") : "").trim();
+          }
 
-            function splitList(s) {
-              if (!s) return [];
-              return [...new Set(
-                s.split(/\r?\n|,/).map(x => x.trim()).filter(Boolean).filter(x => x !== "_No response_")
-              )];
-            }
+          function splitList(s) {
+            if (!s) return [];
+            return [...new Set(
+              s.split(/\r?\n|,/)
+                .map(x => x.trim())
+                .filter(Boolean)
+                .filter(x => x !== "_No response_")
+            )];
+          }
 
-            function slugify(s) {
-              return (s ?? "")
-                .toString()
-                .trim()
-                .toLowerCase()
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/[’']/g, "")
-                .replace(/[^a-z0-9\s-]/g, "")
-                .replace(/\s+/g, "-")
-                .replace(/-+/g, "-");
-            }
+          function slugify(s) {
+            return (s ?? "")
+              .toString()
+              .trim()
+              .toLowerCase()
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .replace(/[’']/g, "")
+              .replace(/[^a-z0-9\s-]/g, "")
+              .replace(/\s+/g, "-")
+              .replace(/-+/g, "-");
+          }
 
-            const TYPE_CA = {
-              normal: "Normal", fire: "Foc", water: "Aigua", electric: "Elèctric", grass: "Planta",
-              ice: "Gel", fighting: "Lluita", poison: "Verí", ground: "Terra", flying: "Volador",
-              psychic: "Psíquic", bug: "Bitxo", rock: "Roca", ghost: "Fantasma", dragon: "Drac",
-              dark: "Sinistre", steel: "Acer", fairy: "Fada",
-            };
+          const TYPE_CA = {
+            normal: "Normal",
+            fire: "Foc",
+            water: "Aigua",
+            electric: "Elèctric",
+            grass: "Planta",
+            ice: "Gel",
+            fighting: "Lluita",
+            poison: "Verí",
+            ground: "Terra",
+            flying: "Volador",
+            psychic: "Psíquic",
+            bug: "Bitxo",
+            rock: "Roca",
+            ghost: "Fantasma",
+            dragon: "Drac",
+            dark: "Sinistre",
+            steel: "Acer",
+            fairy: "Fada",
+          };
 
-            async function fetchJson(url) {
-              const res = await fetch(url, { headers: { "User-Agent": "pokelab-ai" } });
-              if (!res.ok) throw new Error(`HTTP ${res.status} a ${url}`);
-              return await res.json();
-            }
+          async function fetchJson(url) {
+            const res = await fetch(url, { headers: { "User-Agent": "pokelab-ai" } });
+            if (!res.ok) throw new Error(`HTTP ${res.status} a ${url}`);
+            return await res.json();
+          }
 
+          async function main() {
             const nomRaw = pickField(body, "Nom");
             const regioRaw = pickField(body, "Regió");
             const joc = pickField(body, "Joc");
             const naturalesa = pickField(body, "Naturalesa");
+            const rol = pickField(body, "Rol");
             const movimentsRaw = pickField(body, "Moviments");
             const notes = pickField(body, "Notes");
 
@@ -84,7 +101,8 @@ jobs:
               return;
             }
 
-            let baseName = nomRaw;
+            // Nom amb (Hisui) etc.
+            let baseName = nomRaw.trim();
             let forma = "";
             const m = nomRaw.match(/^(.*?)\s*\((.*?)\)\s*$/);
             if (m) {
@@ -92,6 +110,7 @@ jobs:
               forma = (m[2] || "").trim();
             }
 
+            // Regió del formulari: si és una regió amb forma regional i no hi ha forma al nom, la convertim a forma
             const regio = (regioRaw || "").trim();
             const regionalForms = new Set(["Alola", "Galar", "Hisui", "Paldea"]);
             if (!forma && regionalForms.has(regio)) forma = regio;
@@ -100,8 +119,8 @@ jobs:
             const formSlug = forma ? slugify(forma) : "";
             const pokeSlug = formSlug ? `${baseSlug}-${formSlug}` : baseSlug;
 
-            let dex = null;
-            let pokeapiId = null;
+            let dex = null;       // species id (base)
+            let pokeapiId = null; // pokemon id (forma)
             let tipus = [];
 
             try {
@@ -141,6 +160,7 @@ jobs:
               regio: regio === "Normal (sense forma regional)" ? "" : regio,
               joc: joc || "",
               naturalesa: naturalesa || "",
+              rol: rol || "",
               moviments: splitList(movimentsRaw),
               notes: notes || "",
               tipus
@@ -151,17 +171,25 @@ jobs:
             let data = JSON.parse(raw || "[]");
             if (!Array.isArray(data)) data = [];
 
+            // Upsert: base+forma+joc
             const key = `${slugify(entry.baseName)}|${slugify(entry.forma)}|${slugify(entry.joc)}`;
-            const exists = data.some(p => `${slugify(p.baseName || p.nom)}|${slugify(p.forma)}|${slugify(p.joc)}` === key);
+            const idx = data.findIndex(p => {
+              const k = `${slugify(p.baseName || p.nom)}|${slugify(p.forma)}|${slugify(p.joc)}`;
+              return k === key;
+            });
 
-            if (exists) {
-              console.log("Ja existeix, no afegeixo duplicat:", key);
+            if (idx >= 0) {
+              data[idx] = { ...data[idx], ...entry };
+              console.log("Entrada actualitzada:", entry);
             } else {
               data.push(entry);
-              fs.writeFileSync(path, JSON.stringify(data, null, 2) + "\n");
               console.log("Entrada afegida:", entry);
             }
-          })().catch(err => {
+
+            fs.writeFileSync(path, JSON.stringify(data, null, 2) + "\n");
+          }
+
+          main().catch(err => {
             console.error(err);
             process.exit(1);
           });
@@ -173,5 +201,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/pokedex.json
           git diff --cached --quiet && echo "No hi ha canvis" && exit 0
-          git commit -m "chore: upsert pokemon via issue (merge camps + moviments)"
+          git commit -m "chore: afegeix/actualitza pokemon via issue"
           git push
