@@ -22,212 +22,149 @@ jobs:
         with:
           node-version: 20
 
-      - name: Actualitza data/pokedex.json des de l'issue (upsert)
+      -       - name: Actualitza data/pokedex.json des de l'issue (upsert)
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
           node --input-type=commonjs <<'NODE'
-          const fs = require("fs");
+          (async () => {
+            const fs = require("fs");
 
-          const body = process.env.ISSUE_BODY || "";
+            // 👇 IMPORTANT: TOT el teu codi JS ha d’estar AQUÍ DINS (sense res fora del NODE)
+            const body = process.env.ISSUE_BODY || "";
 
-          function pickField(md, label) {
-            // Issue forms: "### Label\nvalor\n"
-            const re = new RegExp(`^###\\s+${label}\\s*$([\\s\\S]*?)(?=^###\\s+|\\Z)`, "m");
-            const m = md.match(re);
-            return (m ? (m[1] || "") : "").trim();
-          }
+            function pickField(md, label) {
+              const re = new RegExp(`^###\\s+${label}\\s*$([\\s\\S]*?)(?=^###\\s+|\\Z)`, "m");
+              const m = md.match(re);
+              return (m ? (m[1] || "") : "").trim();
+            }
 
-          function splitList(s) {
-            if (!s) return [];
-            return [...new Set(
-              s.split(/\r?\n|,/)
-                .map(x => x.trim())
-                .filter(Boolean)
-                .filter(x => x !== "_No response_")
-            )];
-          }
+            function splitList(s) {
+              if (!s) return [];
+              return [...new Set(
+                s.split(/\r?\n|,/).map(x => x.trim()).filter(Boolean).filter(x => x !== "_No response_")
+              )];
+            }
 
-          function clean(s) {
-            const v = (s ?? "").toString().trim();
-            return v === "_No response_" ? "" : v;
-          }
+            function slugify(s) {
+              return (s ?? "")
+                .toString()
+                .trim()
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/[’']/g, "")
+                .replace(/[^a-z0-9\s-]/g, "")
+                .replace(/\s+/g, "-")
+                .replace(/-+/g, "-");
+            }
 
-          function slugify(s) {
-            return (s ?? "")
-              .toString()
-              .trim()
-              .toLowerCase()
-              .normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "")
-              .replace(/[’']/g, "")
-              .replace(/[^a-z0-9\s-]/g, "")
-              .replace(/\s+/g, "-")
-              .replace(/-+/g, "-");
-          }
+            const TYPE_CA = {
+              normal: "Normal", fire: "Foc", water: "Aigua", electric: "Elèctric", grass: "Planta",
+              ice: "Gel", fighting: "Lluita", poison: "Verí", ground: "Terra", flying: "Volador",
+              psychic: "Psíquic", bug: "Bitxo", rock: "Roca", ghost: "Fantasma", dragon: "Drac",
+              dark: "Sinistre", steel: "Acer", fairy: "Fada",
+            };
 
-          const TYPE_CA = {
-            normal: "Normal",
-            fire: "Foc",
-            water: "Aigua",
-            electric: "Elèctric",
-            grass: "Planta",
-            ice: "Gel",
-            fighting: "Lluita",
-            poison: "Verí",
-            ground: "Terra",
-            flying: "Volador",
-            psychic: "Psíquic",
-            bug: "Bitxo",
-            rock: "Roca",
-            ghost: "Fantasma",
-            dragon: "Drac",
-            dark: "Sinistre",
-            steel: "Acer",
-            fairy: "Fada",
-          };
+            async function fetchJson(url) {
+              const res = await fetch(url, { headers: { "User-Agent": "pokelab-ai" } });
+              if (!res.ok) throw new Error(`HTTP ${res.status} a ${url}`);
+              return await res.json();
+            }
 
-          async function fetchJson(url) {
-            const res = await fetch(url, { headers: { "User-Agent": "pokelab-ai" } });
-            if (!res.ok) throw new Error(`HTTP ${res.status} a ${url}`);
-            return await res.json();
-          }
+            const nomRaw = pickField(body, "Nom");
+            const regioRaw = pickField(body, "Regió");
+            const joc = pickField(body, "Joc");
+            const naturalesa = pickField(body, "Naturalesa");
+            const movimentsRaw = pickField(body, "Moviments");
+            const notes = pickField(body, "Notes");
 
-          // === LLEGIM CAMPOS DEL FORMULARI ===
-          const nomRaw = clean(pickField(body, "Nom"));
-          const regioRaw = clean(pickField(body, "Regió"));     // al teu formulari això és "forma regional" (Hisui/Alola/...)
-          const joc = clean(pickField(body, "Joc"));
-          const naturalesa = clean(pickField(body, "Naturalesa"));
-          const rol = clean(pickField(body, "Rol"));
-          const movimentsRaw = pickField(body, "Moviments");
-          const notes = clean(pickField(body, "Notes"));
+            if (!nomRaw) {
+              console.log("Falta el camp Nom.");
+              return;
+            }
 
-          if (!nomRaw) {
-            console.log("Falta el camp Nom.");
-            process.exit(0);
-          }
+            let baseName = nomRaw;
+            let forma = "";
+            const m = nomRaw.match(/^(.*?)\s*\((.*?)\)\s*$/);
+            if (m) {
+              baseName = (m[1] || "").trim();
+              forma = (m[2] || "").trim();
+            }
 
-          // Si el nom ve amb parèntesis (vell), ho detectem
-          let baseName = nomRaw;
-          let forma = "";
-          const m = nomRaw.match(/^(.*?)\s*\((.*?)\)\s*$/);
-          if (m) {
-            baseName = (m[1] || "").trim();
-            forma = (m[2] || "").trim();
-          }
+            const regio = (regioRaw || "").trim();
+            const regionalForms = new Set(["Alola", "Galar", "Hisui", "Paldea"]);
+            if (!forma && regionalForms.has(regio)) forma = regio;
 
-          // Si NO hi ha forma al nom i "Regió" és una forma regional, la fem servir com a forma
-          const regio = clean(regioRaw);
-          const regionalForms = new Set(["Alola", "Galar", "Hisui", "Paldea"]);
-          if (!forma && regionalForms.has(regio)) forma = regio;
+            const baseSlug = slugify(baseName);
+            const formSlug = forma ? slugify(forma) : "";
+            const pokeSlug = formSlug ? `${baseSlug}-${formSlug}` : baseSlug;
 
-          const baseSlug = slugify(baseName);
-          const formSlug = forma ? slugify(forma) : "";
-          const pokeSlug = formSlug ? `${baseSlug}-${formSlug}` : baseSlug;
+            let dex = null;
+            let pokeapiId = null;
+            let tipus = [];
 
-          // === DADES AUTOMÀTIQUES POKEAPI ===
-          let dex = null;        // species id (nacional del base)
-          let pokeapiId = null;  // id del pokemon (forma)
-          let tipus = [];
-
-          try {
-            const species = await fetchJson(`https://pokeapi.co/api/v2/pokemon-species/${baseSlug}`);
-            dex = species.id ?? null;
-          } catch (e) {
-            console.log(`WARN: no puc obtenir dex species per ${baseSlug}: ${e.message}`);
-          }
-
-          try {
-            const pkm = await fetchJson(`https://pokeapi.co/api/v2/pokemon/${pokeSlug}`);
-            pokeapiId = pkm.id ?? null;
-            tipus = (pkm.types || [])
-              .sort((a,b) => (a.slot ?? 99) - (b.slot ?? 99))
-              .map(t => TYPE_CA[t.type?.name] || t.type?.name)
-              .filter(Boolean);
-          } catch (e) {
-            console.log(`WARN: no puc obtenir pokemon per ${pokeSlug}: ${e.message}`);
-            // fallback base
             try {
-              const pkm2 = await fetchJson(`https://pokeapi.co/api/v2/pokemon/${baseSlug}`);
-              pokeapiId = pkm2.id ?? null;
-              tipus = (pkm2.types || [])
+              const species = await fetchJson(`https://pokeapi.co/api/v2/pokemon-species/${baseSlug}`);
+              dex = species.id ?? null;
+            } catch (e) {
+              console.log(`WARN: no puc obtenir dex species per ${baseSlug}: ${e.message}`);
+            }
+
+            try {
+              const pkm = await fetchJson(`https://pokeapi.co/api/v2/pokemon/${pokeSlug}`);
+              pokeapiId = pkm.id ?? null;
+              tipus = (pkm.types || [])
                 .sort((a,b) => (a.slot ?? 99) - (b.slot ?? 99))
                 .map(t => TYPE_CA[t.type?.name] || t.type?.name)
                 .filter(Boolean);
-            } catch (e2) {
-              console.log(`WARN: tampoc puc obtenir pokemon base per ${baseSlug}: ${e2.message}`);
+            } catch (e) {
+              console.log(`WARN: no puc obtenir pokemon per ${pokeSlug}: ${e.message}`);
+              try {
+                const pkm2 = await fetchJson(`https://pokeapi.co/api/v2/pokemon/${baseSlug}`);
+                pokeapiId = pkm2.id ?? null;
+                tipus = (pkm2.types || [])
+                  .sort((a,b) => (a.slot ?? 99) - (b.slot ?? 99))
+                  .map(t => TYPE_CA[t.type?.name] || t.type?.name)
+                  .filter(Boolean);
+              } catch (e2) {
+                console.log(`WARN: tampoc puc obtenir pokemon base per ${baseSlug}: ${e2.message}`);
+              }
             }
-          }
 
-          const entry = {
-            nom: nomRaw,
-            baseName,
-            forma: forma || "",
-            dex: dex ?? null,
-            pokeapiId: pokeapiId ?? null,
-            // si no és forma regional, "regio" pot quedar buit o ser una regió normal (tu decideixes més endavant)
-            regio: regio === "Normal (sense forma regional)" ? "" : regio,
-            joc: joc || "",
-            naturalesa: naturalesa || "",
-            rol: rol || "",
-            moviments: splitList(movimentsRaw),
-            notes: notes || "",
-            tipus
-          };
-
-          // === LLEGIM JSON ===
-          const path = "data/pokedex.json";
-          const raw = fs.existsSync(path) ? fs.readFileSync(path, "utf8").trim() : "[]";
-          let data = JSON.parse(raw || "[]");
-          if (!Array.isArray(data)) data = [];
-
-          // === UPSERT: si ja existeix (base+forma), actualitza; si no, afegeix ===
-          // clau “forta”: baseName+forma (joc NO compta per evitar duplicats del mateix Pokémon)
-          const key = `${slugify(entry.baseName)}|${slugify(entry.forma)}`;
-
-          const idx = data.findIndex(p => {
-            const pBase = slugify(p.baseName || p.nom || "");
-            const pForma = slugify(p.forma || "");
-            return `${pBase}|${pForma}` === key;
-          });
-
-          if (idx >= 0) {
-            const old = data[idx];
-
-            // merge “intel·ligent”: no perdis coses ja posades
-            const merged = {
-              ...old,
-              ...entry,
-              // conserva camps antics si el nou ve buit
-              joc: entry.joc || old.joc || "",
-              naturalesa: entry.naturalesa || old.naturalesa || "",
-              rol: entry.rol || old.rol || "",
-              notes: entry.notes || old.notes || "",
-              // moviments: unió sense duplicats
-              moviments: [...new Set([...(old.moviments || []), ...(entry.moviments || [])].filter(Boolean))],
-              // tipus: si PokeAPI ha donat tipus, guanya; si no, conserva
-              tipus: (entry.tipus && entry.tipus.length) ? entry.tipus : (old.tipus || []),
-              // pokeapiId/dex: si el nou el té, guanya; si no, conserva
-              dex: entry.dex ?? old.dex ?? null,
-              pokeapiId: entry.pokeapiId ?? old.pokeapiId ?? null,
+            const entry = {
+              nom: nomRaw.trim(),
+              baseName,
+              forma: forma || "",
+              dex: dex ?? null,
+              pokeapiId: pokeapiId ?? null,
+              regio: regio === "Normal (sense forma regional)" ? "" : regio,
+              joc: joc || "",
+              naturalesa: naturalesa || "",
+              moviments: splitList(movimentsRaw),
+              notes: notes || "",
+              tipus
             };
 
-            data[idx] = merged;
-            console.log("Actualitzat (upsert):", key, merged);
-          } else {
-            data.push(entry);
-            console.log("Afegit (nou):", key, entry);
-          }
+            const path = "data/pokedex.json";
+            const raw = fs.existsSync(path) ? fs.readFileSync(path, "utf8").trim() : "[]";
+            let data = JSON.parse(raw || "[]");
+            if (!Array.isArray(data)) data = [];
 
-          // Ordena per dex i nom (net i estable)
-          data.sort((a,b) => {
-            const da = Number(a.dex) || 99999;
-            const db = Number(b.dex) || 99999;
-            if (da !== db) return da - db;
-            return (a.nom || "").localeCompare(b.nom || "");
+            const key = `${slugify(entry.baseName)}|${slugify(entry.forma)}|${slugify(entry.joc)}`;
+            const exists = data.some(p => `${slugify(p.baseName || p.nom)}|${slugify(p.forma)}|${slugify(p.joc)}` === key);
+
+            if (exists) {
+              console.log("Ja existeix, no afegeixo duplicat:", key);
+            } else {
+              data.push(entry);
+              fs.writeFileSync(path, JSON.stringify(data, null, 2) + "\n");
+              console.log("Entrada afegida:", entry);
+            }
+          })().catch(err => {
+            console.error(err);
+            process.exit(1);
           });
-
-          fs.writeFileSync(path, JSON.stringify(data, null, 2) + "\n");
           NODE
 
       - name: Commit i push si hi ha canvis
