@@ -18,5 +18,27 @@
     "tipus": [
       "Acer"
     ]
+  },
+  {
+    "nom": "Starmie",
+    "baseName": "Starmie",
+    "forma": "",
+    "dex": 121,
+    "pokeapiId": 121,
+    "regio": "Normal",
+    "joc": "Pokémon Go",
+    "naturalesa": "Grosera",
+    "rol": "",
+    "moviments": [
+      "Placaje (normal)",
+      "Fortaleza (normal)",
+      "Psicoonda (psíquic)",
+      "Pistola agua (aigua)"
+    ],
+    "notes": "",
+    "tipus": [
+      "Aigua",
+      "Psíquic"
+    ]
   }
 ]
