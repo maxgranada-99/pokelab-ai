@@ -62,17 +62,37 @@ function getFormsForSameDex(data, p) {
   return all;
 }
 
-function renderDetail(data, p) {
-  const detailEl = document.getElementById("detail");
-  if (!detailEl) return;
+function openModal(title, subtitle, bodyHtml) {
+  const overlay = document.getElementById("modalOverlay");
+  const t = document.getElementById("modalTitle");
+  const s = document.getElementById("modalSubtitle");
+  const b = document.getElementById("modalBody");
+  if (!overlay || !t || !s || !b) return;
 
+  t.textContent = title || "";
+  s.textContent = subtitle || "";
+  b.innerHTML = bodyHtml || "";
+
+  overlay.classList.remove("hidden");
+  overlay.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal() {
+  const overlay = document.getElementById("modalOverlay");
+  const b = document.getElementById("modalBody");
+  if (!overlay) return;
+
+  overlay.classList.add("hidden");
+  overlay.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+
+  if (b) b.innerHTML = "";
+}
+
+function renderDetail(data, p) {
   const dex = dexNum(p.dex);
   const dexText = dex ? `#${dex} ` : "";
-
-  const spriteId = p.pokeapiId ?? dex;
-  const sprite = spriteId
-    ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${spriteId}.png`
-    : "";
 
   const forms = getFormsForSameDex(data, p);
 
@@ -106,26 +126,16 @@ function renderDetail(data, p) {
     `;
   }).join("");
 
-  detailEl.className = "detail";
-  detailEl.innerHTML = `
-    <div class="detail-head">
-      ${sprite ? `<img src="${sprite}" alt="${p.nom}" onerror="this.style.display='none'">` : ""}
-      <div style="flex:1">
-        <h3>${dexText}${p.baseName || p.nom}</h3>
-        <div class="muted">Formes capturades: ${forms.length}</div>
-      </div>
-      <button class="close" id="closeDetail">Tancar</button>
-    </div>
-    <div style="margin-top:8px">${formsHtml}</div>
-  `;
+  // Títol + “Regió” sota el nom (com vols)
+  const title = `${dexText}${p.baseName || p.nom}`;
+  const regionLine = p.regio ? `Regió: ${p.regio}` : (p.forma ? `Regió: ${p.forma}` : "");
 
-  const btn = document.getElementById("closeDetail");
-  if (btn) {
-    btn.onclick = () => {
-      detailEl.className = "muted";
-      detailEl.textContent = "Clica un Pokémon de la llista per veure’n el detall.";
-    };
-  }
+  openModal(
+    title,
+    regionLine,
+    `<div class="muted">Formes capturades: ${forms.length}</div>
+     <div style="margin-top:8px">${formsHtml}</div>`
+  );
 }
 
 function render(listEl, countEl, data, query) {
@@ -222,6 +232,23 @@ ${warnings ? `<div style="margin-top:8px;">${warnings}</div>` : `<div style="mar
   }
 
   render(listEl, countEl, data, "");
+
+    // Modal: tancar amb creu
+  const closeBtn = document.getElementById("modalClose");
+  if (closeBtn) closeBtn.addEventListener("click", closeModal);
+
+  // Modal: tancar clicant fora
+  const overlay = document.getElementById("modalOverlay");
+  if (overlay) {
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) closeModal();
+    });
+  }
+
+  // Modal: tancar amb ESC
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeModal();
+  });
 
   if (qEl) {
     qEl.addEventListener("input", () => {

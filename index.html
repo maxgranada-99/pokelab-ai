@@ -62,6 +62,44 @@
       background: white;
       cursor:pointer;
     }
+    .hidden { display:none; }
+
+    .modal-overlay{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.55);
+      display:flex; align-items:center; justify-content:center;
+      padding: 24px;
+      z-index: 9999;
+    }
+
+    .modal{
+      width: min(860px, 100%);
+      max-height: min(80vh, 720px);
+      overflow:auto;
+      background:#fff;
+      border-radius: 14px;
+      border: 1px solid #ddd;
+      box-shadow: 0 18px 60px rgba(0,0,0,.35);
+      padding: 18px 18px 16px;
+      position: relative;
+    }
+
+    .modal-title { margin: 0; }
+
+    .modal-close{
+      position:absolute;
+      top: 10px; right: 12px;
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      border: 1px solid #bbb;
+      background: white;
+      cursor: pointer;
+      font-size: 22px;
+      line-height: 1;
+    }
+    .modal-close:hover{ background:#f0f0f0; }
+
+    .modal-body{ margin-top: 12px; }
     .close:hover { background:#f0f0f0; }
   </style>
 </head>
@@ -89,9 +127,9 @@
 
   <input id="q" type="search" placeholder="Cerca per nom (ex.: gengar, leafeon)" />
 
-  <section class="box">
-    <h2>Anàlisi ràpida</h2>
-    <div id="analysis" class="muted">Carregant anàlisi…</div>
+  <section class="box" id="detailSection" style="display:none;">
+    <h2>Fitxa</h2>
+    <div id="detail" class="muted">Clica un Pokémon de la llista per veure’n el detall.</div>
   </section>
 
   <section class="box">
@@ -103,6 +141,16 @@
     <h2>Llista</h2>
     <ul id="list"></ul>
   </section>
+
+<!-- Modal Fitxa -->
+<div id="modalOverlay" class="modal-overlay hidden" aria-hidden="true">
+  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button id="modalClose" class="modal-close" aria-label="Tanca">×</button>
+    <h2 id="modalTitle" class="modal-title"></h2>
+    <div id="modalSubtitle" class="muted" style="margin-top:-6px;"></div>
+    <div id="modalBody" class="modal-body"></div>
+  </div>
+</div>
 
   <script src="./script.js"></script>
 </body>
