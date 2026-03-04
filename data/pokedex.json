@@ -95,5 +95,21 @@
       "Fantasma",
       "Verí"
     ]
+  },
+  {
+    "nom": "Rapidash",
+    "baseName": "Rapidash",
+    "forma": "",
+    "dex": 78,
+    "pokeapiId": 78,
+    "regio": "Normal",
+    "joc": "Leyendas Pokémon: Arceus",
+    "naturalesa": "Alegre",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Foc"
+    ]
   }
 ]
