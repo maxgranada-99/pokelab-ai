@@ -1,8 +1,11 @@
-async function loadPokedex() {
-  const res = await fetch("./data/pokedex.json", { cache: "no-store" });
-  if (!res.ok) throw new Error("No s'ha pogut carregar pokedex.json");
-  const data = await res.json();
-  return Array.isArray(data) ? data : (data.pokemon ?? []);
+// ====== CONFIG ======
+const TOTAL_DEX = 1025;
+
+// Sprite: si tenim pokeapiId usem aquest; si no, dex
+function spriteUrl(p) {
+  const id = p?.pokeapiId ?? p?.dex;
+  if (!id) return "";
+  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 }
 
 function normalize(s) {
@@ -12,54 +15,6 @@ function normalize(s) {
 function dexNum(dex) {
   const n = Number(dex);
   return Number.isFinite(n) && n > 0 ? n : null;
-}
-
-// Barra de progrés
-function setProgress(capturedUnique, total) {
-  const pct = total > 0 ? Math.round((capturedUnique / total) * 100) : 0;
-
-  const txt =
-    document.getElementById("progressText") ||
-    document.getElementById("progress-text") ||
-    document.getElementById("progress_label") ||
-    document.getElementById("progressLabel");
-
-  // HTML teu: la barra és el fill que s’ha d’omplir (progressFill)
-  const fill =
-    document.getElementById("progressFill") ||
-    document.getElementById("progress-fill");
-
-  // POSSIBLE 2n percentatge (si existeix al teu HTML)
-  const pctEl =
-    document.getElementById("percent") ||
-    document.getElementById("progressPercent") ||
-    document.getElementById("progress-percent");
-
-  if (txt) txt.textContent = `${capturedUnique}/${total} · ${pct}%`;
-  if (pctEl) pctEl.textContent = ""; // evita que surti el 2n "0%"
-
-  if (fill && fill.style) {
-    fill.style.width = `${pct}%`;
-    fill.setAttribute("aria-valuenow", String(capturedUnique));
-    fill.setAttribute("aria-valuemax", String(total));
-  }
-}
-
-function getFormsForSameDex(data, p) {
-  const d = dexNum(p.dex);
-  if (!d) return [p];
-
-  const all = data.filter(x => dexNum(x.dex) === d);
-
-  all.sort((a, b) => {
-    const aForm = (a.forma || "").trim();
-    const bForm = (b.forma || "").trim();
-    if (!aForm && bForm) return -1;
-    if (aForm && !bForm) return 1;
-    return aForm.localeCompare(bForm);
-  });
-
-  return all;
 }
 
 function openModal(title, subtitle, bodyHtml) {
@@ -86,178 +41,206 @@ function closeModal() {
   overlay.classList.add("hidden");
   overlay.setAttribute("aria-hidden", "true");
   document.body.style.overflow = "";
-
   if (b) b.innerHTML = "";
 }
 
-function renderDetail(data, p) {
-  const dex = dexNum(p.dex);
-  const dexText = dex ? `#${dex} ` : "";
+async function loadCaptured() {
+  const res = await fetch("./data/pokedex.json", { cache: "no-store" });
+  if (!res.ok) throw new Error("No s'ha pogut carregar pokedex.json");
+  const data = await res.json();
+  return Array.isArray(data) ? data : (data.pokemon ?? []);
+}
 
-  const forms = getFormsForSameDex(data, p);
+// Base dex: 1..1025 amb nom “—” (de moment). El nom real el prendrem del capturat.
+function buildBaseDex() {
+  const arr = [];
+  for (let i = 1; i <= TOTAL_DEX; i++) {
+    arr.push({ dex: i, name: `#${i}` });
+  }
+  return arr;
+}
+
+function setProgress(capturedUnique) {
+  const pct = TOTAL_DEX > 0 ? Math.round((capturedUnique / TOTAL_DEX) * 100) : 0;
+  const fill = document.getElementById("progressFill");
+  const txt = document.getElementById("progressText");
+  if (fill) fill.style.width = `${pct}%`;
+  if (txt) txt.textContent = `${capturedUnique}/${TOTAL_DEX} · ${pct}%`;
+}
+
+function renderDetail(entry, allCaptured) {
+  const el = document.getElementById("detail");
+  if (!el) return;
+
+  if (!entry) {
+    el.className = "muted";
+    el.textContent = "Clica un Pokémon capturat per veure’n el detall.";
+    return;
+  }
+
+  const dex = dexNum(entry.dex);
+  const dexText = dex ? `#${dex} ` : "";
+  const title = `${dexText}${entry.baseName || entry.nom || "—"}`;
+
+  // Agrupem formes del mateix dex
+  const forms = dex ? allCaptured.filter(x => dexNum(x.dex) === dex) : [entry];
 
   const formsHtml = forms.map(f => {
-    const fdex = dexNum(f.dex);
-    const fspriteId = f.pokeapiId ?? fdex;
-    const fsprite = fspriteId
-      ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${fspriteId}.png`
-      : "";
-
-    const ftipus = Array.isArray(f.tipus) && f.tipus.length ? f.tipus.join(", ") : "—";
-    const fmovs = Array.isArray(f.moviments) ? f.moviments.filter(x => x && x !== "_No response_") : [];
-    const fmovText = fmovs.length ? fmovs.join(", ") : "—";
+    const img = spriteUrl(f);
+    const tipus = Array.isArray(f.tipus) && f.tipus.length ? f.tipus.join(", ") : "—";
+    const movs = Array.isArray(f.moviments) ? f.moviments.filter(x => x && x !== "_No response_") : [];
+    const movText = movs.length ? movs.join(", ") : "—";
+    const nat = f.naturalesa ? `Naturalesa: ${f.naturalesa}` : "";
+    const rol = f.rol ? `Rol: ${f.rol}` : "";
 
     return `
       <div style="display:flex; gap:12px; padding:10px 0; border-top:1px solid #eee;">
-        ${fsprite ? `<img src="${fsprite}" alt="${f.nom}" width="64" height="64" onerror="this.style.display='none'">` : ""}
+        ${img ? `<img src="${img}" alt="${f.nom}" width="64" height="64" onerror="this.style.display='none'">` : ""}
         <div style="flex:1">
           <div style="font-weight:700">${f.nom}${f.forma ? ` · ${f.forma}` : ""}</div>
-          <div class="muted">
-            ${ftipus}
-            ${f.regio ? ` · ${f.regio}` : ""}
-            ${f.joc ? ` — ${f.joc}` : ""}
-            ${f.naturalesa ? ` · ${f.naturalesa}` : ""}
-            ${f.rol ? ` · ${f.rol}` : ""}
-          </div>
-          <div class="muted" style="margin-top:4px"><b>Moviments:</b> ${fmovText}</div>
-          ${f.notes ? `<div class="muted" style="margin-top:2px"><b>Notes:</b> ${f.notes}</div>` : ""}
+          <div class="muted">${tipus}${f.regio ? ` · ${f.regio}` : ""}${f.joc ? ` — ${f.joc}` : ""}</div>
+          ${(nat || rol) ? `<div class="muted" style="margin-top:4px">${nat}${nat && rol ? " · " : ""}${rol}</div>` : ""}
+          <div class="muted" style="margin-top:6px"><b>Moviments:</b> ${movText}</div>
+          ${f.notes ? `<div class="muted" style="margin-top:4px"><b>Notes:</b> ${f.notes}</div>` : ""}
         </div>
       </div>
     `;
   }).join("");
 
-  // Títol + “Regió” sota el nom (com vols)
-  const title = `${dexText}${p.baseName || p.nom}`;
-  const regionLine = p.regio ? `Regió: ${p.regio}` : (p.forma ? `Regió: ${p.forma}` : "");
+  const headImg = spriteUrl(entry);
 
-  console.log("renderDetail executat", p.nom);
-
-  openModal(
-    title,
-    regionLine,
-    `<div class="muted">Formes capturades: ${forms.length}</div>
-     <div style="margin-top:8px">${formsHtml}</div>`
-  );
+  el.className = "detail";
+  el.innerHTML = `
+    <div class="detail-head">
+      ${headImg ? `<img src="${headImg}" alt="${entry.nom}" onerror="this.style.display='none'">` : ""}
+      <div style="flex:1">
+        <h2>${title}</h2>
+        <div class="muted">${entry.regio ? `Regió: ${entry.regio}` : ""}</div>
+        <div class="muted">Formes capturades: ${forms.length}</div>
+      </div>
+    </div>
+    <div style="margin-top:10px">${formsHtml}</div>
+  `;
 }
 
-function render(listEl, countEl, data, query) {
+function renderGrid(baseDex, captured, query) {
+  const grid = document.getElementById("grid");
+  const countEl = document.getElementById("count");
+  if (!grid) return;
+
   const q = normalize(query);
-  const items = data.filter(p => normalize(p.nom).includes(q));
 
-  if (countEl) countEl.textContent = `${items.length} / ${data.length} Pokémon mostrats`;
-
-  const TOTAL_DEX = 1025;
-  const uniqueDex = new Set(data.map(p => dexNum(p.dex)).filter(Boolean)).size;
-  setProgress(uniqueDex, TOTAL_DEX);
-
-  // Anàlisi ràpida
-  const analysisEl = document.getElementById("analysis");
-  if (analysisEl) {
-    const countsByRole = {};
-    for (const p of data) {
-      const r = (p.rol ?? "sense rol").toString().trim().toLowerCase();
-      countsByRole[r] = (countsByRole[r] ?? 0) + 1;
-    }
-
-    const roleLines = Object.entries(countsByRole)
-      .sort((a, b) => b[1] - a[1])
-      .map(([role, n]) => `- ${role}: ${n}`)
-      .join("\n");
-
-    const warnings = Object.entries(countsByRole)
-      .filter(([, n]) => n >= 2)
-      .map(([role, n]) => `⚠️ Tens ${n} Pokémon amb el rol “${role}”.`)
-      .join("<br>");
-
-    analysisEl.innerHTML = `
-<pre style="margin:0; white-space:pre-wrap;">${roleLines || "- (encara no hi ha dades)"}</pre>
-${warnings ? `<div style="margin-top:8px;">${warnings}</div>` : `<div style="margin-top:8px;">✅ Rols bastant equilibrats (de moment).</div>`}
-`;
+  // Map capturats per dex (primer capturat trobat)
+  const byDex = new Map();
+  for (const p of captured) {
+    const d = dexNum(p.dex);
+    if (!d) continue;
+    if (!byDex.has(d)) byDex.set(d, p);
   }
 
-  // Llista
-  listEl.innerHTML = "";
+  // Progrés: espècies úniques
+  setProgress(byDex.size);
 
-  const sorted = [...items].sort((a, b) => (dexNum(a.dex) ?? 99999) - (dexNum(b.dex) ?? 99999));
+  const visibleDex = baseDex.filter(item => {
+    if (!q) return true;
+    const cap = byDex.get(item.dex);
+    const name = cap?.baseName || cap?.nom || "";
+    return normalize(name).includes(q);
+  });
 
-  for (const p of sorted) {
-    const li = document.createElement("li");
-    li.className = "row";
+  if (countEl) countEl.textContent = `${visibleDex.length} / ${TOTAL_DEX} mostrats`;
 
-    const dex = dexNum(p.dex);
-    const dexText = dex ? `#${dex} ` : "";
+  grid.innerHTML = "";
+  for (const item of visibleDex) {
+    const cap = byDex.get(item.dex);
+
+    const cell = document.createElement("div");
+    cell.className = "cell" + (cap ? "" : " locked");
+
+    const dexEl = document.createElement("div");
+    dexEl.className = "dex";
+    dexEl.textContent = `#${item.dex}`;
 
     const img = document.createElement("img");
-    img.alt = p.nom;
-    img.width = 64;
-    img.height = 64;
-
-    const spriteId = p.pokeapiId ?? dex;
-    if (spriteId) {
-      img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${spriteId}.png`;
+    img.alt = cap ? (cap.baseName || cap.nom) : "";
+    if (cap) {
+      img.src = spriteUrl(cap) || "";
       img.onerror = () => (img.style.display = "none");
     } else {
       img.style.display = "none";
     }
 
-    const text = document.createElement("div");
-    const joc = p.joc ? ` — ${p.joc}` : "";
-    const regio = p.regio ? ` · ${p.regio}` : "";
-    const tipus = Array.isArray(p.tipus) && p.tipus.length ? ` [${p.tipus.join(", ")}]` : "";
-    const rol = p.rol ? ` · ${p.rol}` : "";
-    const natura = p.naturalesa ? ` · ${p.naturalesa}` : "";
-    const notes = p.notes ? ` · ${p.notes}` : "";
+    const nameEl = document.createElement("div");
+    nameEl.className = "name";
+    nameEl.textContent = cap ? (cap.baseName || cap.nom) : "—";
 
-    text.textContent = `${dexText}${p.nom}${tipus}${joc}${regio}${rol}${natura}${notes}`;
+    cell.appendChild(dexEl);
+    cell.appendChild(img);
+    cell.appendChild(nameEl);
 
-    li.appendChild(img);
-    li.appendChild(text);
+    if (cap) {
+      cell.addEventListener("click", () => {
+        renderDetail(cap, captured);
 
-    li.addEventListener("click", () => {
-      console.log("CLICK:", p.nom);
-      renderDetail(data, p);
-    });
+        const dex = dexNum(cap.dex);
+        const title = `#${dex || "?"} ${cap.baseName || cap.nom}`;
+        const subtitle = cap.regio ? `Regió: ${cap.regio}` : "";
+        const body = document.getElementById("detail")?.innerHTML || "";
 
-    listEl.appendChild(li);
+        openModal(title, subtitle, body);
+      });
+    }
+
+    grid.appendChild(cell);
   }
 }
 
 (async () => {
-  const listEl = document.getElementById("list");
-  const countEl = document.getElementById("count");
   const qEl = document.getElementById("q");
+  const addBtn = document.getElementById("addBtn");
 
-  let data = [];
+  let captured = [];
   try {
-    data = await loadPokedex();
+    captured = await loadCaptured();
   } catch (e) {
+    const countEl = document.getElementById("count");
     if (countEl) countEl.textContent = "Error carregant dades";
-    if (listEl) listEl.innerHTML = `<li>No he pogut llegir <code>data/pokedex.json</code></li>`;
     return;
   }
 
-  render(listEl, countEl, data, "");
+  const baseDex = buildBaseDex();
 
-    // Modal: tancar amb creu
+  // primera renderització
+  renderDetail(null, captured);
+  renderGrid(baseDex, captured, "");
+
+  // cerca
+  if (qEl) {
+    qEl.addEventListener("input", () => {
+      renderGrid(baseDex, captured, qEl.value);
+    });
+  }
+
+  // Botó afegir: de moment, porta a New Issue del repo (tu ja tens el template)
+  if (addBtn) {
+    addBtn.addEventListener("click", () => {
+      window.open("./.github/ISSUE_TEMPLATE/", "_blank");
+    });
+  }
+
+  // --- Modal: tancar amb ✕, clic fora i ESC ---
+  const overlay = document.getElementById("modalOverlay");
   const closeBtn = document.getElementById("modalClose");
+
   if (closeBtn) closeBtn.addEventListener("click", closeModal);
 
-  // Modal: tancar clicant fora
-  const overlay = document.getElementById("modalOverlay");
   if (overlay) {
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) closeModal();
     });
   }
 
-  // Modal: tancar amb ESC
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeModal();
   });
-
-  if (qEl) {
-    qEl.addEventListener("input", () => {
-      render(listEl, countEl, data, qEl.value);
-    });
-  }
 })();
