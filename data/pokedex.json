@@ -176,5 +176,22 @@
       "Planta",
       "Volador"
     ]
+  },
+  {
+    "nom": "Gardevoir",
+    "baseName": "Gardevoir",
+    "forma": "",
+    "dex": 282,
+    "pokeapiId": 282,
+    "regio": "Normal",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Floja",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Psíquic",
+      "Fada"
+    ]
   }
 ]
