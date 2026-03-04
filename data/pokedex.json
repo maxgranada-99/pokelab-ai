@@ -78,5 +78,22 @@
     "tipus": [
       "Normal"
     ]
+  },
+  {
+    "nom": "Gengar",
+    "baseName": "Gengar",
+    "forma": "",
+    "dex": 94,
+    "pokeapiId": 94,
+    "regio": "Normal",
+    "joc": "Leyendas Pokémon: Arceus",
+    "naturalesa": "Seria",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Fantasma",
+      "Verí"
+    ]
   }
 ]
