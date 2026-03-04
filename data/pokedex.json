@@ -127,5 +127,21 @@
     "tipus": [
       "Foc"
     ]
+  },
+  {
+    "nom": "Oshawott",
+    "baseName": "Oshawott",
+    "forma": "",
+    "dex": 501,
+    "pokeapiId": 501,
+    "regio": "Normal",
+    "joc": "Pokémon Go",
+    "naturalesa": "Alocada",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Aigua"
+    ]
   }
 ]
