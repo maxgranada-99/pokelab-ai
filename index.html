@@ -832,6 +832,19 @@
         /* Pokéball clicable */
     #addPokemonBtn { cursor: pointer !important; }
     #captureBtn:active { transform: scale(0.98); }
+    
+        /* Filtre (select) integrat amb la toolbar */
+    #filterMode{
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 2px solid var(--ink, #222);
+      background: rgba(255,255,255,.9);
+      font-weight: 700;
+    }
+    #filterMode:focus-visible{
+      outline: 3px solid rgba(42,117,187,.55);
+      outline-offset: 2px;
+    }
   </style>
 </head>
 
@@ -858,6 +871,12 @@
 
   <div class="box toolbar">
     <input id="q" type="search" placeholder="Cerca per nom (ex.: starmie, melmetal)" />
+
+    <select id="filterMode" aria-label="Filtre Pokédex">
+      <option value="all">Tots</option>
+      <option value="captured">Capturats</option>
+      <option value="missing">No capturats</option>
+    </select>
   </div>
 
   <section class="box hidden">

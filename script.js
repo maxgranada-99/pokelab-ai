@@ -145,9 +145,17 @@ function renderGrid(baseDex, captured, query) {
   // Progrés: espècies úniques
   setProgress(byDex.size);
 
+  const mode = (document.getElementById("filterMode")?.value || "all");
+
   const visibleDex = baseDex.filter(item => {
-    if (!q) return true;
     const cap = byDex.get(item.dex);
+
+    // filtre capturat / no capturat
+    if (mode === "captured" && !cap) return false;
+    if (mode === "missing" && cap) return false;
+
+    // filtre de cerca
+    if (!q) return true;
     const name = cap?.baseName || cap?.nom || "";
     return normalize(name).includes(q);
   });
@@ -217,6 +225,7 @@ function renderGrid(baseDex, captured, query) {
 
 (async () => {
   const qEl = document.getElementById("q");
+  const filterEl = document.getElementById("filterMode");
   const addBtn = document.getElementById("addBtn");
 
   let captured = [];
@@ -238,6 +247,11 @@ function renderGrid(baseDex, captured, query) {
   if (qEl) {
     qEl.addEventListener("input", () => {
       renderGrid(baseDex, captured, qEl.value);
+    });
+  }
+  if (filterEl) {
+    filterEl.addEventListener("change", () => {
+      renderGrid(baseDex, captured, qEl ? qEl.value : "");
     });
   }
 
