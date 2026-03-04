@@ -628,18 +628,16 @@
       font-display: swap;
     }
 
-    h1{
+    header h1{
       font-family: "PokemonSolid", system-ui, sans-serif;
       letter-spacing: 1px;
 
-      color:#FFCB05;
+      color:#FFCB05 !important;            /* groc */
+      -webkit-text-stroke: 6px #2A75BB;    /* contorn blau (Safari/Chrome) */
+      paint-order: stroke fill;            /* si el navegador ho suporta */
 
-      text-shadow:
-        -3px -3px 0 #2A75BB,
-        3px -3px 0 #2A75BB,
-        -3px  3px 0 #2A75BB,
-        3px  3px 0 #2A75BB,
-         0px  4px 0 #2A75BB;
+      /* extra: una mica de volum, opcional */
+      text-shadow: 0 5px 0 rgba(42,117,187,.35);
     }
   </style>
 </head>
