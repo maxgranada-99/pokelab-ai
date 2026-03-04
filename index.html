@@ -72,7 +72,12 @@
     }
 
     .shell .muted{ color: rgba(27,27,27,.70); }
-    header { display:flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+    header{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      margin-bottom: 10px;
+    }
     h1 { margin: 0; }
     .muted { color:#555; }
     .box { margin: 16px 0 18px; max-width: 1100px; }
@@ -631,6 +636,7 @@
     header h1{
       font-family: "PokemonSolid", system-ui, sans-serif;
       letter-spacing: 1px;
+      font-size: 3.2rem;
 
       color:#FFCB05 !important;            /* groc */
       -webkit-text-stroke: 6px #2A75BB;    /* contorn blau (Safari/Chrome) */
@@ -649,7 +655,6 @@
 
   <header>
     <h1>Pokédex personal</h1>
-    <span class="muted" id="count">Carregant…</span>
   </header>
 
   <div class="box progress-wrap">
