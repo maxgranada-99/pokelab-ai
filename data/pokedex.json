@@ -40,5 +40,27 @@
       "Aigua",
       "Psíquic"
     ]
+  },
+  {
+    "nom": "Haunter",
+    "baseName": "Haunter",
+    "forma": "",
+    "dex": 93,
+    "pokeapiId": 93,
+    "regio": "Normal",
+    "joc": "Pokémon Go",
+    "naturalesa": "Firme",
+    "rol": "",
+    "moviments": [
+      "Gas venenoso (verí)",
+      "Tinieblas (fantasma)",
+      "Fuego fatuo (foc)",
+      "Golpe bajo (sinistre)"
+    ],
+    "notes": "",
+    "tipus": [
+      "Fantasma",
+      "Verí"
+    ]
   }
 ]
