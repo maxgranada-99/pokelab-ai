@@ -406,10 +406,52 @@
     .cell:hover{
       transform: translateY(-2px);
     }
+    
+        /* ===== DISPOSITIU POKÉDEX ===== */
+
+    .device{
+      max-width:1200px;
+      margin:auto;
+      padding:28px;
+      background:linear-gradient(180deg,#b52d2d,#8f1f1f);
+      border-radius:28px;
+      box-shadow:
+        inset 0 8px 16px rgba(255,255,255,.15),
+        inset 0 -8px 20px rgba(0,0,0,.25),
+        0 30px 60px rgba(0,0,0,.45);
+    }
+
+    .device-screen{
+      background:#efe9dd;
+      border-radius:18px;
+      padding:20px;
+      box-shadow:
+        inset 0 6px 12px rgba(0,0,0,.15),
+        0 10px 25px rgba(0,0,0,.25);
+    }
+
+    /* cargols decoratius */
+    .device::before,
+    .device::after{
+      content:"";
+      position:absolute;
+      width:12px;
+      height:12px;
+      border-radius:50%;
+      background:radial-gradient(circle at 30% 30%,#fff,#bbb 50%,#666);
+      top:18px;
+    }
+
+    .device::before{ left:18px; }
+    .device::after{ right:18px; }
   </style>
 </head>
 
 <body>
+
+<div class="device">
+<div class="device-screen">
+
   <header>
     <h1>Pokédex personal</h1>
     <span class="muted" id="count">Carregant…</span>
@@ -434,6 +476,9 @@
   <section class="box">
     <div id="grid" aria-label="Graella Pokédex"></div>
   </section>
+
+  </div>
+  </div>
 
   <script src="./script.js?v=1" defer></script>
   <!-- MODAL -->
