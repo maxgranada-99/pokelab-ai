@@ -111,5 +111,21 @@
     "tipus": [
       "Foc"
     ]
+  },
+  {
+    "nom": "Ninetales",
+    "baseName": "Ninetales",
+    "forma": "",
+    "dex": 38,
+    "pokeapiId": 38,
+    "regio": "Normal",
+    "joc": "Leyendas Pokémon: Arceus",
+    "naturalesa": "Mansa",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Foc"
+    ]
   }
 ]
