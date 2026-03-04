@@ -64,8 +64,12 @@ function setProgress(capturedUnique) {
   const pct = TOTAL_DEX > 0 ? Math.round((capturedUnique / TOTAL_DEX) * 100) : 0;
   const fill = document.getElementById("progressFill");
   const txt = document.getElementById("progressText");
+
   if (fill) fill.style.width = `${pct}%`;
   if (txt) txt.textContent = `${capturedUnique}/${TOTAL_DEX} · ${pct}%`;
+
+  const pokeball = document.getElementById("captureBtn");
+  if (pokeball) pokeball.style.setProperty("--p", pct / 100);
 }
 
 function renderDetail(entry, allCaptured) {
