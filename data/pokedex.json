@@ -193,5 +193,22 @@
       "Psíquic",
       "Fada"
     ]
+  },
+  {
+    "nom": "Lucario",
+    "baseName": "Lucario",
+    "forma": "",
+    "dex": 448,
+    "pokeapiId": 448,
+    "regio": "Normal",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Mansa",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Lluita",
+      "Acer"
+    ]
   }
 ]
