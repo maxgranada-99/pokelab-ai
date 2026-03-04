@@ -227,5 +227,26 @@
       "Terra",
       "Acer"
     ]
+  },
+  {
+    "nom": "Jolteon",
+    "baseName": "Jolteon",
+    "forma": "",
+    "dex": 135,
+    "pokeapiId": 135,
+    "regio": "Normal",
+    "joc": "Pokémon Rojo",
+    "naturalesa": "Huraña",
+    "rol": "",
+    "moviments": [
+      "Lanzallamas",
+      "Impactrueno",
+      "Pistola de agua",
+      "Tóxico"
+    ],
+    "notes": "",
+    "tipus": [
+      "Elèctric"
+    ]
   }
 ]
