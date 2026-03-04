@@ -151,11 +151,24 @@ function renderGrid(baseDex, captured, query) {
   if (countEl) countEl.textContent = `${visibleDex.length} / ${TOTAL_DEX} mostrats`;
 
   grid.innerHTML = "";
+
+      // --- NEW CAPTURE detection (via localStorage) ---
+  const LS_KEY = "pokedex_seen_dex_v1";
+  let seen = new Set();
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) seen = new Set(JSON.parse(raw));
+  } catch {}
   for (const item of visibleDex) {
     const cap = byDex.get(item.dex);
+    const isNewCapture = !!cap && !seen.has(item.dex);
 
     const cell = document.createElement("div");
     cell.className = "cell" + (cap ? "" : " locked");
+    if (isNewCapture) {
+      cell.classList.add("new-capture");
+      seen.add(item.dex);
+    }
 
     const dexEl = document.createElement("div");
     dexEl.className = "dex";
@@ -193,6 +206,9 @@ function renderGrid(baseDex, captured, query) {
 
     grid.appendChild(cell);
   }
+  try {
+  localStorage.setItem(LS_KEY, JSON.stringify([...seen].sort((a,b)=>a-b)));
+} catch {}
 }
 
 (async () => {
