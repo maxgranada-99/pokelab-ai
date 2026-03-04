@@ -82,7 +82,13 @@
     .muted { color:#555; }
     .box { margin: 16px 0 18px; max-width: 1100px; }
 
-    .progress-wrap { display:flex; align-items:center; gap: 12px; flex-wrap: wrap; }
+    .progress-wrap{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      justify-content:center;   /* centra tot el grup */
+    }
     .progress-bar {
       position: relative;
       width: min(520px, 100%);
@@ -91,6 +97,7 @@
       border-radius: 999px;
       overflow: hidden;
       background: #f2f2f2;
+      margin: 0 auto;            /* centra la barra dins l’espai */
     }
     .progress-fill { height: 100%; width: 0%; background: #1a1a1a; transition: width .25s ease; }
     .progress-text { font-variant-numeric: tabular-nums; }
@@ -99,11 +106,13 @@
     input[type="search"] { padding: 8px 10px; width: min(520px, 100%); }
 
     /* GRID */
-    #grid {
-      display: grid;
+    #grid{
+      display:grid;
       grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-      gap: 10px;
-      max-width: 1100px;
+      gap:10px;
+
+      max-width:1000px;
+      margin:0 auto;
     }
     .cell {
       border: 1px solid #ddd;
@@ -639,7 +648,7 @@
       font-size: 3.2rem;
 
       color:#FFCB05 !important;            /* groc */
-      -webkit-text-stroke: 6px #2A75BB;    /* contorn blau (Safari/Chrome) */
+      -webkit-text-stroke: 8px #2A75BB;    /* contorn blau (Safari/Chrome) */
       paint-order: stroke fill;            /* si el navegador ho suporta */
 
       /* extra: una mica de volum, opcional */
