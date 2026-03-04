@@ -143,5 +143,21 @@
     "tipus": [
       "Aigua"
     ]
+  },
+  {
+    "nom": "Cyndaquil",
+    "baseName": "Cyndaquil",
+    "forma": "",
+    "dex": 155,
+    "pokeapiId": 155,
+    "regio": "Normal",
+    "joc": "Leyendas Pokémon: Arceus",
+    "naturalesa": "Modesta",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Foc"
+    ]
   }
 ]
