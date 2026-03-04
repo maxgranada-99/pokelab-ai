@@ -159,5 +159,22 @@
     "tipus": [
       "Foc"
     ]
+  },
+  {
+    "nom": "Rowlet",
+    "baseName": "Rowlet",
+    "forma": "",
+    "dex": 722,
+    "pokeapiId": 722,
+    "regio": "Normal",
+    "joc": "Pokémon Go",
+    "naturalesa": "Alegre",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Planta",
+      "Volador"
+    ]
   }
 ]
