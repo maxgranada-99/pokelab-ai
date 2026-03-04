@@ -470,6 +470,156 @@
         0 2px 6px rgba(0,0,0,.4),
         inset 0 1px 2px rgba(255,255,255,.4);
     }
+      /* ===== THEME: Pokédex App Moderna (A) ===== */
+    :root{
+      --bg: #F6F7FB;
+      --card: #FFFFFF;
+      --card2: #F3F4F6;
+      --text: #1F2937;
+      --muted: #6B7280;
+      --border: #E5E7EB;
+
+      /* accents Pokémon */
+      --blue: #2A75BB;
+      --yellow: #FFCB05;
+      --red: #E3350D;
+
+      --shadow: 0 10px 25px rgba(17,24,39,.10);
+      --shadow2: 0 6px 16px rgba(17,24,39,.08);
+      --radius: 16px;
+    }
+
+    /* Fons app */
+    body{
+      background: radial-gradient(900px 500px at 20% 10%, rgba(42,117,187,.10), transparent 55%),
+                  radial-gradient(900px 500px at 80% 0%, rgba(255,203,5,.10), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+    }
+
+    /* Si tens wrapper device, el convertim en contenidor app */
+    .device{
+      background: transparent !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+    }
+    .device-screen{
+      background: transparent !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+    }
+
+    /* Layout: centrat i net */
+    header, .progress-wrap, .toolbar, #detail, #grid{
+      max-width: 1100px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Capçalera moderna */
+    header{
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 6px 2px 0 !important;
+    }
+    h1{
+      color: var(--text) !important;
+      text-shadow: none !important;
+      letter-spacing: .2px;
+    }
+    #count{ color: var(--muted) !important; }
+
+    /* Progrés com a “status” */
+    .progress-wrap{
+      background: var(--card) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--radius) !important;
+      padding: 14px 14px !important;
+      box-shadow: var(--shadow2) !important;
+    }
+    .progress-bar{
+      border: 1px solid var(--border) !important;
+      background: var(--card2) !important;
+    }
+    .progress-fill{
+      background: linear-gradient(90deg, var(--blue), var(--yellow)) !important;
+    }
+    .progress-text{ color: var(--muted) !important; }
+
+    /* Toolbar integrada */
+    .toolbar{
+      background: transparent !important;
+      padding: 0 !important;
+    }
+    input[type="search"]{
+      border: 1px solid var(--border) !important;
+      border-radius: 999px !important;
+      background: var(--card) !important;
+      box-shadow: var(--shadow2) !important;
+      color: var(--text) !important;
+    }
+    input[type="search"]::placeholder{ color: #9CA3AF; }
+
+    #addBtn{
+      border: 1px solid rgba(42,117,187,.25) !important;
+      background: rgba(42,117,187,.12) !important;
+      color: var(--blue) !important;
+      border-radius: 999px !important;
+      box-shadow: var(--shadow2) !important;
+      font-weight: 600;
+    }
+    #addBtn:hover{ background: rgba(42,117,187,.18) !important; }
+
+    /* Grid i cel·les: app cards */
+    #grid{
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+      box-shadow: none !important;
+    }
+    .cell{
+      background: var(--card) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 14px !important;
+      box-shadow: var(--shadow2) !important;
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .cell:hover{
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+    .cell.locked{
+      background: rgba(255,255,255,.55) !important;
+      box-shadow: none !important;
+    }
+    .cell .dex{ color: var(--muted) !important; }
+    .cell .name{ color: var(--text) !important; }
+
+    /* (Per ara) el panell #detail el deixem discret (després el traurem) */
+    #detail{
+      background: var(--card) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--radius) !important;
+      box-shadow: var(--shadow2) !important;
+    }
+
+    /* Modal modern */
+    .modal-overlay{
+      background: rgba(17,24,39,.55) !important;
+      backdrop-filter: blur(6px);
+    }
+    .modal{
+      border-radius: 18px !important;
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 30px 80px rgba(0,0,0,.35) !important;
+    }
+    .modal-close{
+      border-radius: 999px !important;
+      border: 1px solid var(--border) !important;
+      background: var(--card) !important;
+    }
+    .modal-close:hover{ background: var(--card2) !important; }
   </style>
 </head>
 
