@@ -772,6 +772,63 @@
     .cell.new-capture {
       animation: capturePop 520ms ease-out both, captureGlow 900ms ease-out both;
     }
+        /* === POKÉBALL PROGRESS (opció B) === */
+    .pokeball-progress{
+      display:flex;
+      justify-content:center;
+      margin: 10px 0 2px;
+    }
+
+    .pokeball{
+      --p: 0;                 /* 0..1 (JS ho actualitza) */
+      width: 74px;
+      height: 74px;
+      border-radius: 50%;
+      position: relative;
+      border: 4px solid #1c1c1c;
+      box-shadow: 0 10px 26px rgba(0,0,0,.12);
+      overflow: hidden;
+    }
+
+    /* “omplir” el vermell segons el progrés (de 0 a 100%) */
+    .pokeball-fill{
+      position:absolute;
+      inset:0;
+      background:
+        conic-gradient(
+          #d83b2f calc(var(--p) * 360deg),
+          #f7f7f7 0
+        );
+    }
+
+    /* línia negra del mig */
+    .pokeball::before{
+      content:"";
+      position:absolute;
+      left:-10%;
+      right:-10%;
+      top:50%;
+      height: 10px;
+      transform: translateY(-50%);
+      background:#1c1c1c;
+      z-index: 2;
+    }
+
+    /* botó central */
+    .pokeball::after{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:50%;
+      width: 22px;
+      height: 22px;
+      transform: translate(-50%,-50%);
+      border-radius: 50%;
+      background: #f7f7f7;
+      border: 4px solid #1c1c1c;
+      box-shadow: inset 0 0 0 3px #f7f7f7;
+      z-index: 3;
+    }
   </style>
 </head>
 
@@ -791,7 +848,7 @@
     <div class="progress-text" id="progressText">—</div>
   </div>
   <div class="pokeball-progress">
-    <div class="pokeball">
+    <div class="pokeball" id="captureBtn">
       <div class="pokeball-fill" id="pokeballFill"></div>
     </div>
   </div>
