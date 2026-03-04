@@ -62,5 +62,21 @@
       "Fantasma",
       "Verí"
     ]
+  },
+  {
+    "nom": "Snorlax",
+    "baseName": "Snorlax",
+    "forma": "",
+    "dex": 143,
+    "pokeapiId": 143,
+    "regio": "Normal",
+    "joc": "Leyendas Pokémon: Arceus",
+    "naturalesa": "Floja",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Normal"
+    ]
   }
 ]
