@@ -264,3 +264,13 @@ function renderGrid(baseDex, captured, query) {
     if (e.key === "Escape") closeModal();
   });
 })();
+const addPokemonBtn = document.getElementById("addPokemonBtn");
+
+if (addPokemonBtn) {
+  addPokemonBtn.addEventListener("click", () => {
+    window.open(
+      "https://github.com/maxgranada-99/pokelab-ai/issues/new?template=afegir-pokemon.yml",
+      "_blank"
+    );
+  });
+}
