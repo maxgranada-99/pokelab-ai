@@ -210,5 +210,22 @@
       "Lluita",
       "Acer"
     ]
+  },
+  {
+    "nom": "Excadrill",
+    "baseName": "Excadrill",
+    "forma": "",
+    "dex": 530,
+    "pokeapiId": 530,
+    "regio": "Normal",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Cauta",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Terra",
+      "Acer"
+    ]
   }
 ]
