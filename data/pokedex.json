@@ -457,5 +457,27 @@
       "Normal",
       "Volador"
     ]
+  },
+  {
+    "nom": "Charjabug",
+    "baseName": "Charjabug",
+    "forma": "",
+    "dex": 737,
+    "pokeapiId": 737,
+    "regio": "Normal",
+    "joc": "Pokémon Ultrasol",
+    "naturalesa": "Activa",
+    "rol": "",
+    "moviments": [
+      "(Tijera X)",
+      "Rayo carga (elèctric)",
+      "Bofetón lodo (terra)",
+      "Triturar (sinistre)"
+    ],
+    "notes": "",
+    "tipus": [
+      "Bitxo",
+      "Elèctric"
+    ]
   }
 ]
