@@ -329,5 +329,24 @@
       "Acer",
       "Roca"
     ]
+  },
+  {
+    "nom": "Makit",
+    "baseName": "Makit",
+    "forma": "",
+    "dex": null,
+    "pokeapiId": null,
+    "regio": "Normal",
+    "joc": "Pokémon Rubí Omega",
+    "naturalesa": "Audaz",
+    "rol": "",
+    "moviments": [
+      "Cuerpo pesado (acer)",
+      "A bocajarro (lluita)",
+      "Desarme (sinistre)",
+      "Golpe roca (lluita)"
+    ],
+    "notes": "",
+    "tipus": []
   }
 ]
