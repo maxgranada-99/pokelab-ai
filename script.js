@@ -17,6 +17,90 @@ function dexNum(dex) {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
+function typeToClass(t) {
+  const m = {
+    "Foc": "fire",
+    "Aigua": "water",
+    "Planta": "grass",
+    "Elèctric": "electric",
+    "Psíquic": "psychic",
+    "Gel": "ice",
+    "Drac": "dragon",
+    "Sinistre": "dark",
+    "Fada": "fairy",
+    "Normal": "normal",
+    "Lluita": "fighting",
+    "Volador": "flying",
+    "Verí": "poison",
+    "Terra": "ground",
+    "Roca": "rock",
+    "Bitxo": "bug",
+    "Fantasma": "ghost",
+    "Acer": "steel",
+  };
+  return m[t] || "normal";
+}
+
+function renderTypePills(tipusArr) {
+  const arr = Array.isArray(tipusArr) ? tipusArr.filter(Boolean) : [];
+  if (!arr.length) return "";
+  return `<div class="types">` + arr.map(t => {
+    const cls = typeToClass(t);
+    return `<span class="type type-${cls}">${t}</span>`;
+  }).join("") + `</div>`;
+}
+
+function buildModalBody(entry, allCaptured) {
+  const dex = dexNum(entry.dex);
+  const title = `#${dex ?? "?"} ${entry.baseName || entry.nom || "—"}`;
+  const subtitle = entry.regio ? `Regió: ${entry.regio}` : "";
+
+  // formes = totes les entrades amb el mateix dex (mateixa espècie)
+  const forms = dex ? allCaptured.filter(x => dexNum(x.dex) === dex) : [entry];
+
+  // sprite gran: el de l’entrada clicada
+  const headImg = spriteUrl(entry);
+
+  const formsHtml = forms.map(f => {
+    const img = spriteUrl(f);
+    const movs = Array.isArray(f.moviments) ? f.moviments.filter(x => x && x !== "_No response_") : [];
+    const movText = movs.length ? movs.join(", ") : "—";
+
+    return `
+      <div style="display:flex; gap:12px; padding:10px 0; border-top:1px solid #eee;">
+        ${img ? `<img src="${img}" alt="${f.nom}" width="64" height="64" style="image-rendering:pixelated" onerror="this.style.display='none'">` : ""}
+        <div style="flex:1">
+          <div style="font-weight:800">${f.nom}${f.forma ? ` · ${f.forma}` : ""}</div>
+          <div class="muted" style="margin-top:2px;">
+            ${renderTypePills(f.tipus)}
+            <div style="margin-top:6px;">
+              ${f.joc ? `${f.joc}` : ""}${f.regio ? (f.joc ? ` · ${f.regio}` : `${f.regio}`) : ""}
+              ${f.naturalesa ? ` · ${f.naturalesa}` : ""}
+              ${f.rol ? ` · ${f.rol}` : ""}
+            </div>
+          </div>
+          <div class="muted" style="margin-top:8px;"><b>Moviments:</b> ${movText}</div>
+          ${f.notes ? `<div class="muted" style="margin-top:4px;"><b>Notes:</b> ${f.notes}</div>` : ""}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  const bodyHtml = `
+    <div class="modal-header">
+      ${headImg ? `<img src="${headImg}" alt="${entry.nom}" onerror="this.style.display='none'">` : ""}
+      <div style="flex:1">
+        <h2 class="modal-title" style="margin:0;">${title}</h2>
+        <div class="modal-sub">${subtitle}</div>
+        <div class="muted" style="margin-top:6px;">Formes capturades: ${forms.length}</div>
+      </div>
+    </div>
+    ${formsHtml}
+  `;
+
+  return { title, subtitle, bodyHtml };
+}
+
 function openModal(title, subtitle, bodyHtml) {
   const overlay = document.getElementById("modalOverlay");
   const t = document.getElementById("modalTitle");
@@ -205,14 +289,8 @@ function renderGrid(baseDex, captured, query) {
 
     if (cap) {
       cell.addEventListener("click", () => {
-        renderDetail(cap, captured);
-
-        const dex = dexNum(cap.dex);
-        const title = `#${dex || "?"} ${cap.baseName || cap.nom}`;
-        const subtitle = cap.regio ? `Regió: ${cap.regio}` : "";
-        const body = document.getElementById("detail")?.innerHTML || "";
-
-        openModal(title, subtitle, body);
+        const { title, subtitle, bodyHtml } = buildModalBody(cap, captured);
+        openModal(title, subtitle, bodyHtml);
       });
     }
 
