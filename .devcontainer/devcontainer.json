@@ -1,0 +1,11 @@
+{
+  "name": "pokelab-ai",
+  "forwardPorts": [8000],
+  "postStartCommand": "python3 -m http.server 8000",
+  "portsAttributes": {
+    "8000": {
+      "label": "Pokédex",
+      "onAutoForward": "openBrowser"
+    }
+  }
+}

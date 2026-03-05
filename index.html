@@ -896,18 +896,6 @@
     #addPokemonBtn { cursor: pointer !important; }
     #captureBtn:active { transform: scale(0.98); }
     
-        /* Filtre (select) integrat amb la toolbar */
-    #filterMode{
-      padding: 8px 10px;
-      border-radius: 12px;
-      border: 2px solid var(--ink, #222);
-      background: rgba(255,255,255,.9);
-      font-weight: 700;
-    }
-    #filterMode:focus-visible{
-      outline: 3px solid rgba(42,117,187,.55);
-      outline-offset: 2px;
-    }
     .modal-hero{
       width:140px;
       height:140px;
@@ -991,6 +979,35 @@
     .modal-form:first-child {
       border-top: none;
     }
+/* Toolbar: mateix look pels dos selects */
+    .toolbar select {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 32px;
+      padding: 0 34px 0 12px;
+      border: 1px solid #d7d7d7;
+      border-radius: 10px;
+      background: #fff;
+      font-weight: 700;
+      font-size: 13px;
+      line-height: 32px;
+      cursor: pointer;
+
+      background-image:
+        linear-gradient(45deg, transparent 50%, #666 50%),
+        linear-gradient(135deg, #666 50%, transparent 50%),
+        linear-gradient(to right, transparent, transparent);
+      background-position:
+        calc(100% - 18px) 14px,
+        calc(100% - 12px) 14px,
+        0 0;
+      background-size: 6px 6px, 6px 6px, 100% 100%;
+      background-repeat: no-repeat;
+    }
+
+    /* Que el text no quedi tallat */
+    #filterMode { min-width: 120px; }
+    #filterRegion { min-width: 160px; }
   </style>
 </head>
 <body>
@@ -1021,6 +1038,20 @@
       <option value="all">Tots</option>
       <option value="captured">Capturats</option>
       <option value="missing">No capturats</option>
+    </select>
+
+    <select id="filterRegion">
+      <option value="all">Totes les regions</option>
+      <option value="Kanto">Kanto</option>
+      <option value="Johto">Johto</option>
+      <option value="Hoenn">Hoenn</option>
+      <option value="Sinnoh">Sinnoh</option>
+      <option value="Unova">Unova</option>
+      <option value="Kalos">Kalos</option>
+      <option value="Alola">Alola</option>
+      <option value="Galar">Galar</option>
+      <option value="Hisui">Hisui</option>
+      <option value="Paldea">Paldea</option>
     </select>
   </div>
 

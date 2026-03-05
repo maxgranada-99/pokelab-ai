@@ -17,6 +17,21 @@ function dexNum(dex) {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
+function regionFromDex(dex) {
+  const n = dexNum(dex);
+  if (!n) return "";
+  if (n <= 151) return "Kanto";
+  if (n <= 251) return "Johto";
+  if (n <= 386) return "Hoenn";
+  if (n <= 493) return "Sinnoh";
+  if (n <= 649) return "Unova";
+  if (n <= 721) return "Kalos";
+  if (n <= 809) return "Alola";
+  if (n <= 898) return "Galar";
+  if (n <= 905) return "Hisui";
+  return "Paldea";
+}
+
 function typeToClass(t) {
   const m = {
     "Foc": "fire",
@@ -205,9 +220,13 @@ function renderGrid(baseDex, captured, query) {
   setProgress(byDex.size);
 
   const mode = (document.getElementById("filterMode")?.value || "all");
+  const regionSel = (document.getElementById("filterRegion")?.value || "all");
 
   const visibleDex = baseDex.filter(item => {
     const cap = byDex.get(item.dex);
+
+    const effectiveRegion = regionFromDex(item.dex);
+    if (regionSel !== "all" && effectiveRegion !== regionSel) return false;
 
     // filtre capturat / no capturat
     if (mode === "captured" && !cap) return false;
@@ -280,6 +299,7 @@ function renderGrid(baseDex, captured, query) {
   const qEl = document.getElementById("q");
   const filterEl = document.getElementById("filterMode");
   const addBtn = document.getElementById("addBtn");
+  const regionEl = document.getElementById("filterRegion");
 
   let captured = [];
   try {
@@ -304,6 +324,11 @@ function renderGrid(baseDex, captured, query) {
   }
   if (filterEl) {
     filterEl.addEventListener("change", () => {
+      renderGrid(baseDex, captured, qEl ? qEl.value : "");
+    });
+  }
+  if (regionEl) {
+    regionEl.addEventListener("change", () => {
       renderGrid(baseDex, captured, qEl ? qEl.value : "");
     });
   }
