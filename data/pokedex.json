@@ -435,5 +435,27 @@
       "Aigua",
       "Fada"
     ]
+  },
+  {
+    "nom": "Toucannon",
+    "baseName": "Toucannon",
+    "forma": "",
+    "dex": 733,
+    "pokeapiId": 733,
+    "regio": "Normal",
+    "joc": "Pokémon Ultrasol",
+    "naturalesa": "Mansa",
+    "rol": "",
+    "moviments": [
+      "Respiro (volador)",
+      "Nitrocarga (foc)",
+      "Pico cañón (volador)",
+      "Golpe roca (lluita)"
+    ],
+    "notes": "",
+    "tipus": [
+      "Normal",
+      "Volador"
+    ]
   }
 ]
