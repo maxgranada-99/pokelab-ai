@@ -265,5 +265,26 @@
       "Aigua",
       "Fada"
     ]
+  },
+  {
+    "nom": "Sceptile",
+    "baseName": "Sceptile",
+    "forma": "",
+    "dex": 254,
+    "pokeapiId": 254,
+    "regio": "Normal",
+    "joc": "Pokémon Rubí Omega",
+    "naturalesa": "Floja",
+    "rol": "",
+    "moviments": [
+      "Corte (normal)",
+      "Hoja aguda (planta)",
+      "Megaagotar (planta)",
+      "Tijera X (bitxo)"
+    ],
+    "notes": "",
+    "tipus": [
+      "Planta"
+    ]
   }
 ]
