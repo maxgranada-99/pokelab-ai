@@ -494,8 +494,8 @@
     "tipus": [
       "Elèctric"
     ]
-  }
-    {
+  },
+  {
     "nom": "Raichu",
     "baseName": "Raichu",
     "forma": "Alola",
@@ -516,5 +516,5 @@
       "Elèctric",
       "Psíquic"
     ]
-  },
+  }
 ]
