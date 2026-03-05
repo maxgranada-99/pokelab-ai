@@ -50,9 +50,16 @@ function renderTypePills(tipusArr) {
   }).join("") + `</div>`;
 }
 
+function escapeHtml(str) {
+  return String(str ?? "").replace(/[&<>"']/g, s => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[s]));
+}
+
 function buildModalBody(entry, allCaptured) {
   const dex = dexNum(entry.dex);
-  const title = `#${dex ?? "?"} ${entry.baseName || entry.nom || "—"}`;
+  const titleText = `#${dex ?? "?"} ${entry.baseName || entry.nom || "—"}`;
+  const title = `<span class="modal-ball" aria-hidden="true"></span>${escapeHtml(titleText)}`;
   const subtitle = entry.regio ? `Regió: ${entry.regio}` : "";
 
   // formes = totes les entrades amb el mateix dex (mateixa espècie)
@@ -88,8 +95,6 @@ function buildModalBody(entry, allCaptured) {
 
   const bodyHtml = `
     <div style="text-align:center;">
-      <h2 class="modal-title">${title}</h2>
-      <div class="modal-sub">${subtitle}</div>
 
       ${headImg ? `<img class="modal-hero" src="${headImg}" alt="${entry.nom}" onerror="this.style.display='none'">` : ""}
 
@@ -111,7 +116,7 @@ function openModal(title, subtitle, bodyHtml) {
   const b = document.getElementById("modalBody");
   if (!overlay || !t || !s || !b) return;
 
-  t.textContent = "";
+  t.innerHTML = title || "";
   s.textContent = "";
   b.innerHTML = bodyHtml || "";
 

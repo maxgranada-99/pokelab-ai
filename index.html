@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="ca">
 <head>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>PokéLab AI — Pokédex personal</title>
@@ -251,6 +253,8 @@
     }
 
     .modal-title{
+      font-family: "Space Mono", monospace;
+      font-weight:700;
       font-size:22px;
       margin:0;
     }
@@ -904,9 +908,77 @@
       outline: 3px solid rgba(42,117,187,.55);
       outline-offset: 2px;
     }
+    .modal-hero{
+      width:140px;
+      height:140px;
+      margin:10px auto;
+      display:block;
+      image-rendering:pixelated;
+    }
+    /* ===== Tipografia Pokédex ===== */
+
+    .dex,
+    .name,
+    .modal-title{
+      font-family: "IBM Plex Mono", monospace;
+      font-weight:600;
+    }
+
+    /* evitar salts de línia als noms */
+    .cell .name{
+      white-space: nowrap;
+    }
+
+    /* ajust de mida perquè càpiga millor */
+    .dex{
+      font-size:11px;
+    }
+
+    .name{
+      font-size:13px;
+    }
+    /* pokéball del títol del modal */
+
+    .modal-ball{
+      display:inline-block;
+      width:24px;
+      height:24px;
+      margin-right:8px;
+      background-image:url("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png");
+      background-size:contain;
+      background-repeat:no-repeat;
+      vertical-align:-6px;
+    }
+        /* títol del modal amb icona */
+    #modalTitle{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+    }
+
+    /* pokéball moderna (la mateixa que vols) */
+    .modal-ball{
+      width:22px;
+      height:22px;
+      flex:0 0 22px;
+      background:url("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png") center/contain no-repeat;
+    }
+    .modal-title{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+    }
+
+    .modal-ball{
+      width:18px;
+      height:18px;
+      display:inline-block;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23fff' stroke='%23222' stroke-width='4'/%3E%3Cpath d='M2 50h96' stroke='%23222' stroke-width='6'/%3E%3Cpath d='M4 50a46 46 0 0 1 92 0' fill='%23e53935'/%3E%3Ccircle cx='50' cy='50' r='16' fill='%23fff' stroke='%23222' stroke-width='6'/%3E%3Ccircle cx='50' cy='50' r='8' fill='%23ddd'/%3E%3C/svg%3E") center/contain no-repeat;
+    }
   </style>
 </head>
-
 <body>
 
 <div class="device">
