@@ -479,5 +479,26 @@
       "Bitxo",
       "Elèctric"
     ]
+  },
+  {
+    "nom": "Cubone",
+    "baseName": "Cubone",
+    "forma": "",
+    "dex": 104,
+    "pokeapiId": 104,
+    "regio": "Normal",
+    "joc": "Pokémon Ultrasol",
+    "naturalesa": "Alocada",
+    "rol": "",
+    "moviments": [
+      "Hueso palo (terra)",
+      "Golpe cabeza (normal)",
+      "Furia (normal)",
+      "Huesomerang (terra)"
+    ],
+    "notes": "",
+    "tipus": [
+      "Terra"
+    ]
   }
 ]
