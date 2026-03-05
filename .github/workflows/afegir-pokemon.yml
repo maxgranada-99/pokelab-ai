@@ -2,7 +2,7 @@ name: Afegir Pokémon a la Pokédex
 
 on:
   issues:
-    types: [opened]
+    types: [opened, edited, labeled]
 
 permissions:
   contents: write
@@ -89,7 +89,7 @@ jobs:
 
           async function main() {
             const nomRaw = pickField(body, "Nom");
-            const regioRaw = pickField(body, "Regió");
+            const formaRaw = pickField(body, "Regió");
             const joc = pickField(body, "Joc");
             const naturalesa = pickField(body, "Naturalesa");
             const rol = pickField(body, "Rol");
@@ -111,9 +111,18 @@ jobs:
             }
 
             // Regió del formulari: si és una regió amb forma regional i no hi ha forma al nom, la convertim a forma
-            const regio = (regioRaw || "").trim();
+            const formaSel = (formaRaw || "").trim(); // "Base" | "Alola" | "Galar" | "Hisui" | "Paldea"
             const regionalForms = new Set(["Alola", "Galar", "Hisui", "Paldea"]);
-            if (!forma && regionalForms.has(regio)) forma = regio;
+
+            // Si el nom NO porta parèntesis, però l’usuari ha triat forma regional, ho fem servir com a "forma"
+            if (!forma && regionalForms.has(formaSel)) {
+              forma = formaSel;
+            }
+
+            // Mantindrem el camp "regio" com fins ara (per la UI actual):
+            // - "Normal" si és Base
+            // - "Alola/Galar/Hisui/Paldea" si és variant
+            const regio = formaSel || "Base";
 
             const baseSlug = slugify(baseName);
             const formSlug = forma ? slugify(forma) : "";
@@ -157,7 +166,7 @@ jobs:
               forma: forma || "",
               dex: dex ?? null,
               pokeapiId: pokeapiId ?? null,
-              regio: regio === "Normal (sense forma regional)" ? "" : regio,
+              regio,
               joc: joc || "",
               naturalesa: naturalesa || "",
               rol: rol || "",
