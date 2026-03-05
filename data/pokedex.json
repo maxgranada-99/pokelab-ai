@@ -248,5 +248,22 @@
     "tipus": [
       "Elèctric"
     ]
+  },
+  {
+    "nom": "Azumarill",
+    "baseName": "Azumarill",
+    "forma": "",
+    "dex": 184,
+    "pokeapiId": 184,
+    "regio": "Normal",
+    "joc": "Pokémon Rubí Omega",
+    "naturalesa": "Osada",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Aigua",
+      "Fada"
+    ]
   }
 ]
