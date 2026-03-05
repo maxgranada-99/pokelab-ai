@@ -286,5 +286,26 @@
     "tipus": [
       "Planta"
     ]
+  },
+  {
+    "nom": "Groudon",
+    "baseName": "Groudon",
+    "forma": "",
+    "dex": 383,
+    "pokeapiId": 383,
+    "regio": "Normal",
+    "joc": "Pokémon Rubí Omega",
+    "naturalesa": "Plácida",
+    "rol": "",
+    "moviments": [
+      "Humareda (foc)",
+      "Descanso (psíquic)",
+      "Terremoto (terra)",
+      "Filo del abismo (terra)"
+    ],
+    "notes": "",
+    "tipus": [
+      "Terra"
+    ]
   }
 ]
