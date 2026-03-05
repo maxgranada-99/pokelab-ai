@@ -348,5 +348,26 @@
     ],
     "notes": "",
     "tipus": []
+  },
+  {
+    "nom": "Mightyena",
+    "baseName": "Mightyena",
+    "forma": "",
+    "dex": 262,
+    "pokeapiId": 262,
+    "regio": "Normal",
+    "joc": "Pokémon Rubí Omega",
+    "naturalesa": "Alocada",
+    "rol": "",
+    "moviments": [
+      "Colmillor rayo (elèctric)",
+      "Alarido (sinistre)",
+      "Golpe bajo (sinistre)",
+      "Triturar (sinistre)"
+    ],
+    "notes": "",
+    "tipus": [
+      "Sinistre"
+    ]
   }
 ]
