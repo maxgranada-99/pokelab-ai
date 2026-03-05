@@ -371,28 +371,6 @@
     ]
   },
   {
-    "nom": "Raichu",
-    "baseName": "Raichu",
-    "forma": "Alola",
-    "dex": 26,
-    "pokeapiId": 10100,
-    "regio": "Alola",
-    "joc": "Pokémon Ultrasol",
-    "naturalesa": "Pícara",
-    "rol": "",
-    "moviments": [
-      "Chispa (elèctric)",
-      "Rayo carga (elèctric)",
-      "Onda trueno (elèctric)",
-      "Psíquico (psíquic)"
-    ],
-    "notes": "",
-    "tipus": [
-      "Elèctric",
-      "Psíquic"
-    ]
-  },
-  {
     "nom": "Malamar",
     "baseName": "Malamar",
     "forma": "",
@@ -517,4 +495,26 @@
       "Elèctric"
     ]
   }
+    {
+    "nom": "Raichu",
+    "baseName": "Raichu",
+    "forma": "Alola",
+    "dex": 26,
+    "pokeapiId": 10100,
+    "regio": "Alola",
+    "joc": "Pokémon Ultrasol",
+    "naturalesa": "Pícara",
+    "rol": "",
+    "moviments": [
+      "Chispa (elèctric)",
+      "Rayo carga (elèctric)",
+      "Onda trueno (elèctric)",
+      "Psíquico (psíquic)"
+    ],
+    "notes": "",
+    "tipus": [
+      "Elèctric",
+      "Psíquic"
+    ]
+  },
 ]
