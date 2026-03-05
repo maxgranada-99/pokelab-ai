@@ -111,8 +111,8 @@ function openModal(title, subtitle, bodyHtml) {
   const b = document.getElementById("modalBody");
   if (!overlay || !t || !s || !b) return;
 
-  t.textContent = title || "";
-  s.textContent = subtitle || "";
+  t.textContent = "";
+  s.textContent = "";
   b.innerHTML = bodyHtml || "";
 
   overlay.classList.remove("hidden");
