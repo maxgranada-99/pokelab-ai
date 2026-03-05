@@ -548,5 +548,22 @@
     "tipus": [
       "Foc"
     ]
+  },
+  {
+    "nom": "Typhlosion",
+    "baseName": "Typhlosion",
+    "forma": "Hisui",
+    "dex": 157,
+    "pokeapiId": 10233,
+    "regio": "Hisui",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "(cap)",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Foc",
+      "Fantasma"
+    ]
   }
 ]
