@@ -87,14 +87,17 @@ function buildModalBody(entry, allCaptured) {
   }).join("");
 
   const bodyHtml = `
-    <div class="modal-header">
-      ${headImg ? `<img src="${headImg}" alt="${entry.nom}" onerror="this.style.display='none'">` : ""}
-      <div style="flex:1">
-        <h2 class="modal-title" style="margin:0;">${title}</h2>
-        <div class="modal-sub">${subtitle}</div>
-        <div class="muted" style="margin-top:6px;">Formes capturades: ${forms.length}</div>
+    <div style="text-align:center;">
+      <h2 class="modal-title">${title}</h2>
+      <div class="modal-sub">${subtitle}</div>
+
+      ${headImg ? `<img class="modal-hero" src="${headImg}" alt="${entry.nom}" onerror="this.style.display='none'">` : ""}
+
+      <div class="muted" style="margin-top:6px;">
+        Formes capturades: ${forms.length}
       </div>
     </div>
+
     ${formsHtml}
   `;
 
@@ -157,58 +160,9 @@ function setProgress(capturedUnique) {
 }
 
 function renderDetail(entry, allCaptured) {
-  const el = document.getElementById("detail");
-  if (!el) return;
-
-  if (!entry) {
-    el.className = "muted";
-    el.textContent = "Clica un Pokémon capturat per veure’n el detall.";
-    return;
-  }
-
-  const dex = dexNum(entry.dex);
-  const dexText = dex ? `#${dex} ` : "";
-  const title = `${dexText}${entry.baseName || entry.nom || "—"}`;
-
-  // Agrupem formes del mateix dex
-  const forms = dex ? allCaptured.filter(x => dexNum(x.dex) === dex) : [entry];
-
-  const formsHtml = forms.map(f => {
-    const img = spriteUrl(f);
-    const tipus = Array.isArray(f.tipus) && f.tipus.length ? f.tipus.join(", ") : "—";
-    const movs = Array.isArray(f.moviments) ? f.moviments.filter(x => x && x !== "_No response_") : [];
-    const movText = movs.length ? movs.join(", ") : "—";
-    const nat = f.naturalesa ? `Naturalesa: ${f.naturalesa}` : "";
-    const rol = f.rol ? `Rol: ${f.rol}` : "";
-
-    return `
-      <div style="display:flex; gap:12px; padding:10px 0; border-top:1px solid #eee;">
-        ${img ? `<img src="${img}" alt="${f.nom}" width="64" height="64" onerror="this.style.display='none'">` : ""}
-        <div style="flex:1">
-          <div style="font-weight:700">${f.nom}${f.forma ? ` · ${f.forma}` : ""}</div>
-          <div class="muted">${tipus}${f.regio ? ` · ${f.regio}` : ""}${f.joc ? ` — ${f.joc}` : ""}</div>
-          ${(nat || rol) ? `<div class="muted" style="margin-top:4px">${nat}${nat && rol ? " · " : ""}${rol}</div>` : ""}
-          <div class="muted" style="margin-top:6px"><b>Moviments:</b> ${movText}</div>
-          ${f.notes ? `<div class="muted" style="margin-top:4px"><b>Notes:</b> ${f.notes}</div>` : ""}
-        </div>
-      </div>
-    `;
-  }).join("");
-
-  const headImg = spriteUrl(entry);
-
-  el.className = "detail";
-  el.innerHTML = `
-    <div class="detail-head">
-      ${headImg ? `<img src="${headImg}" alt="${entry.nom}" onerror="this.style.display='none'">` : ""}
-      <div style="flex:1">
-        <h2>${title}</h2>
-        <div class="muted">${entry.regio ? `Regió: ${entry.regio}` : ""}</div>
-        <div class="muted">Formes capturades: ${forms.length}</div>
-      </div>
-    </div>
-    <div style="margin-top:10px">${formsHtml}</div>
-  `;
+  if (!entry) return;
+  const { title, subtitle, bodyHtml } = buildModalBody(entry, allCaptured);
+  openModal(title, subtitle, bodyHtml);
 }
 
 function renderGrid(baseDex, captured, query) {
