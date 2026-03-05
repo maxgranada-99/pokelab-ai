@@ -413,5 +413,27 @@
       "Sinistre",
       "Psíquic"
     ]
+  },
+  {
+    "nom": "Primarina",
+    "baseName": "Primarina",
+    "forma": "",
+    "dex": 730,
+    "pokeapiId": 730,
+    "regio": "Normal",
+    "joc": "Pokémon Ultrasol",
+    "naturalesa": "Firme",
+    "rol": "",
+    "moviments": [
+      "Aria burbuja (aigua)",
+      "Rayo burbuja (aigua)",
+      "Viento hielo (gel)",
+      "Voz cautivadora (fada)"
+    ],
+    "notes": "",
+    "tipus": [
+      "Aigua",
+      "Fada"
+    ]
   }
 ]
