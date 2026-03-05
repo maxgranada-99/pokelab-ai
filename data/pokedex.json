@@ -307,5 +307,27 @@
     "tipus": [
       "Terra"
     ]
+  },
+  {
+    "nom": "Aggron",
+    "baseName": "Aggron",
+    "forma": "",
+    "dex": 306,
+    "pokeapiId": 306,
+    "regio": "Normal",
+    "joc": "Pokémon Rubí Omega",
+    "naturalesa": "Huraña",
+    "rol": "",
+    "moviments": [
+      "Avalancha (roca)",
+      "Fuerza (normal)",
+      "Defensa férrea (acer)",
+      "Cola férrea (acer)"
+    ],
+    "notes": "",
+    "tipus": [
+      "Acer",
+      "Roca"
+    ]
   }
 ]
