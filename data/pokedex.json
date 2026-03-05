@@ -532,5 +532,21 @@
     "tipus": [
       "Foc"
     ]
+  },
+  {
+    "nom": "Typhlosion",
+    "baseName": "Typhlosion",
+    "forma": "",
+    "dex": 157,
+    "pokeapiId": 157,
+    "regio": "",
+    "joc": "Leyendas Pokémon: Arceus",
+    "naturalesa": "(cap)",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Foc"
+    ]
   }
 ]
