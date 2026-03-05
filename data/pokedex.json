@@ -391,5 +391,27 @@
       "Elèctric",
       "Psíquic"
     ]
+  },
+  {
+    "nom": "Malamar",
+    "baseName": "Malamar",
+    "forma": "",
+    "dex": 687,
+    "pokeapiId": 687,
+    "regio": "Normal",
+    "joc": "Pokémon Ultrasol",
+    "naturalesa": "(cap)",
+    "rol": "",
+    "moviments": [
+      "Juego sucio (sinistre)",
+      "Reversión (sinistre)",
+      "Psicorrayo (psíquic)",
+      "Hipnosis (psíquic)"
+    ],
+    "notes": "",
+    "tipus": [
+      "Sinistre",
+      "Psíquic"
+    ]
   }
 ]
