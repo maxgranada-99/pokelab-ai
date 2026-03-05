@@ -500,5 +500,21 @@
     "tipus": [
       "Terra"
     ]
+  },
+  {
+    "nom": "Raichu",
+    "baseName": "Raichu",
+    "forma": "",
+    "dex": 26,
+    "pokeapiId": 26,
+    "regio": "Normal",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "(cap)",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Elèctric"
+    ]
   }
 ]
