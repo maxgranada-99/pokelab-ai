@@ -66,7 +66,9 @@ function buildModalBody(entry, allCaptured) {
   const forms = dex ? allCaptured.filter(x => dexNum(x.dex) === dex) : [entry];
 
   // sprite gran: el de l’entrada clicada
-  const headImg = spriteUrl(entry);
+  const headImg = spriteUrl(
+    forms.find(f => f.regio === "Normal") || entry
+  );
 
   const formsHtml = forms.map(f => {
     const img = spriteUrl(f);
@@ -74,23 +76,37 @@ function buildModalBody(entry, allCaptured) {
     const movText = movs.length ? movs.join(", ") : "—";
 
     return `
-      <div style="display:flex; gap:12px; padding:10px 0; border-top:1px solid #eee;">
-        ${img ? `<img src="${img}" alt="${f.nom}" width="64" height="64" style="image-rendering:pixelated" onerror="this.style.display='none'">` : ""}
+      <div class="modal-form" style="display:flex; gap:12px; align-items:flex-start;">
+    
+        ${img ? `<img src="${img}" alt="${f.nom}" width="56" height="56" style="image-rendering:pixelated" onerror="this.style.display='none'">` : ""}
+
         <div style="flex:1">
-          <div style="font-weight:800">${f.nom}${f.forma ? ` · ${f.forma}` : ""}</div>
-          <div class="muted" style="margin-top:2px;">
-            ${renderTypePills(f.tipus)}
-            <div style="margin-top:6px;">
-              ${f.joc ? `${f.joc}` : ""}${f.regio ? (f.joc ? ` · ${f.regio}` : `${f.regio}`) : ""}
-              ${f.naturalesa ? ` · ${f.naturalesa}` : ""}
-              ${f.rol ? ` · ${f.rol}` : ""}
-            </div>
+
+          <div style="font-weight:800; font-size:15px; line-height:1.2;">
+            ${f.nom}${f.forma ? ` · ${f.forma}` : ""}
           </div>
-          <div class="muted" style="margin-top:8px;"><b>Moviments:</b> ${movText}</div>
-          ${f.notes ? `<div class="muted" style="margin-top:4px;"><b>Notes:</b> ${f.notes}</div>` : ""}
-        </div>
-      </div>
-    `;
+
+          <div style="margin-top:4px;">
+            ${renderTypePills(f.tipus)}
+          </div>
+
+          <div class="muted" style="margin-top:6px;">
+            ${f.joc ? `Pokémon ${f.joc}` : ""}
+          </div>
+
+          ${f.naturalesa ? `
+            <div class="muted" style="margin-top:6px;">
+              Naturalesa: ${f.naturalesa}
+            </div>
+          ` : ""}
+
+          <div class="muted" style="margin-top:4px;">
+            Moviments: ${movText}
+          </div>
+
+    </div>
+  </div>
+`;
   }).join("");
 
   const bodyHtml = `
