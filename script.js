@@ -67,7 +67,7 @@ function buildModalBody(entry, allCaptured) {
 
   // sprite gran: el de l’entrada clicada
   const headImg = spriteUrl(
-    forms.find(f => f.regio === "Normal") || entry
+    forms.find(f => f.regio === "Base") || entry
   );
 
   const formsHtml = forms.map(f => {
