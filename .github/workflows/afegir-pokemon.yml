@@ -89,7 +89,7 @@ jobs:
 
           async function main() {
             const nomRaw = pickField(body, "Nom");
-            const formaRaw = pickField(body, "Regió");
+            const formaRaw = pickField(body, "Regió") || pickField(body, "Forma regional");
             const joc = pickField(body, "Joc");
             const naturalesa = pickField(body, "Naturalesa");
             const rol = pickField(body, "Rol");
