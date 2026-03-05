@@ -516,5 +516,21 @@
       "Elèctric",
       "Psíquic"
     ]
+  },
+  {
+    "nom": "Typhlosion",
+    "baseName": "Typhlosion",
+    "forma": "",
+    "dex": 157,
+    "pokeapiId": 157,
+    "regio": "",
+    "joc": "Pokémon Rojo",
+    "naturalesa": "(cap)",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Foc"
+    ]
   }
 ]
