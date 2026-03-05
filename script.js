@@ -59,7 +59,7 @@ function escapeHtml(str) {
 function buildModalBody(entry, allCaptured) {
   const dex = dexNum(entry.dex);
   const titleText = `#${dex ?? "?"} ${entry.baseName || entry.nom || "—"}`;
-  const title = `<span class="modal-ball" aria-hidden="true"></span>${escapeHtml(titleText)}`;
+  const title = `<span class="ball modal-ball" aria-hidden="true"></span>${escapeHtml(titleText)}`;
   const subtitle = entry.regio ? `Regió: ${entry.regio}` : "";
 
   // formes = totes les entrades amb el mateix dex (mateixa espècie)
@@ -117,7 +117,7 @@ function openModal(title, subtitle, bodyHtml) {
   if (!overlay || !t || !s || !b) return;
 
   t.innerHTML = title || "";
-  s.textContent = "";
+  s.textContent = subtitle || "";
   b.innerHTML = bodyHtml || "";
 
   overlay.classList.remove("hidden");
