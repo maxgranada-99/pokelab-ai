@@ -13,12 +13,12 @@ body:
       required: true
 
   - type: dropdown
-    id: regio
+    id: forma
     attributes:
-      label: Regió
-      description: "AQUÍ vol dir forma regional. Si no és una forma regional, deixa Normal."
+      label: Forma regional
+      description: "Només si és variant regional. Si és la forma base, tria Base."
       options:
-        - "Normal"
+        - "Base"
         - "Alola"
         - "Galar"
         - "Hisui"
