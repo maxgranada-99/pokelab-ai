@@ -549,5 +549,24 @@
       "Foc",
       "Fantasma"
     ]
+  },
+  {
+    "nom": "Dadenne",
+    "baseName": "Dadenne",
+    "forma": "",
+    "dex": null,
+    "pokeapiId": null,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Cauta",
+    "rol": "",
+    "moviments": [
+      "Hiperrayo (normal)",
+      "Onda anómala (elèctric)",
+      "Encanto (fada)",
+      "Carga parábola (elèctric)"
+    ],
+    "notes": "",
+    "tipus": []
   }
 ]
