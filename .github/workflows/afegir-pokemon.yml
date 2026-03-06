@@ -2,7 +2,7 @@ name: Afegir Pokémon a la Pokédex
 
 on:
   issues:
-    types: [opened, edited, labeled]
+    types: [opened]
 
 permissions:
   contents: write
