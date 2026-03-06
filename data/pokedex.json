@@ -568,5 +568,27 @@
     ],
     "notes": "",
     "tipus": []
+  },
+  {
+    "nom": "Starmie",
+    "baseName": "Starmie",
+    "forma": "",
+    "dex": 121,
+    "pokeapiId": 121,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Huraña",
+    "rol": "",
+    "moviments": [
+      "Surf (aigua)",
+      "Psíquico (psíquic)",
+      "Pantalla de luz (psíquic)",
+      "Trueno (elèctric)"
+    ],
+    "notes": "",
+    "tipus": [
+      "Aigua",
+      "Psíquic"
+    ]
   }
 ]
