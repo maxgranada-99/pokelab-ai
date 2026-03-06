@@ -168,7 +168,7 @@ function closeModal() {
 }
 
 async function loadCaptured() {
-  const res = await fetch("./data/pokedex.json", { cache: "no-store" });
+  const res = await fetch(`./data/pokedex.json?v=${Date.now()}`, { cache: "no-store" });
   if (!res.ok) throw new Error("No s'ha pogut carregar pokedex.json");
   const data = await res.json();
   return Array.isArray(data) ? data : (data.pokemon ?? []);
