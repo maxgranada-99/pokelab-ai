@@ -551,11 +551,11 @@
     ]
   },
   {
-    "nom": "Dadenne",
-    "baseName": "Dadenne",
+    "nom": "Dedenne",
+    "baseName": "Dedenne",
     "forma": "",
-    "dex": null,
-    "pokeapiId": null,
+    "dex": 702,
+    "pokeapiId": 702,
     "regio": "Base",
     "joc": "Leyendas Pokémon:",
     "naturalesa": "Cauta",
