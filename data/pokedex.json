@@ -1059,5 +1059,22 @@
       "Planta",
       "Verí"
     ]
+  },
+  {
+    "nom": "Venusaur",
+    "baseName": "Venusaur",
+    "forma": "",
+    "dex": 3,
+    "pokeapiId": 3,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Agitada",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Planta",
+      "Verí"
+    ]
   }
 ]
