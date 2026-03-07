@@ -645,5 +645,27 @@
     "tipus": [
       "Fada"
     ]
+  },
+  {
+    "nom": "Gible",
+    "baseName": "Gible",
+    "forma": "",
+    "dex": 443,
+    "pokeapiId": 443,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Rara",
+    "rol": "",
+    "moviments": [
+      "Terratemblor (terra)",
+      "Dragoaliento (drac)",
+      "Placaje (normal)",
+      "Bucle arena (terra)"
+    ],
+    "notes": "",
+    "tipus": [
+      "Drac",
+      "Terra"
+    ]
   }
 ]
