@@ -879,5 +879,22 @@
     "tipus": [
       "Aigua"
     ]
+  },
+  {
+    "nom": "Roserade",
+    "baseName": "Roserade",
+    "forma": "",
+    "dex": 407,
+    "pokeapiId": 407,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Alegre",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Planta",
+      "Verí"
+    ]
   }
 ]
