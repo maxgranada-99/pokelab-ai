@@ -590,5 +590,27 @@
       "Aigua",
       "Psíquic"
     ]
+  },
+  {
+    "nom": "Lucario",
+    "baseName": "Lucario",
+    "forma": "",
+    "dex": 448,
+    "pokeapiId": 448,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Fuerte",
+    "rol": "",
+    "moviments": [
+      "Esfera aural (lluita)",
+      "Puño bala (acer)",
+      "Protección (normal)",
+      "Golpe roca (lluita)"
+    ],
+    "notes": "",
+    "tipus": [
+      "Lluita",
+      "Acer"
+    ]
   }
 ]
