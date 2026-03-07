@@ -896,5 +896,21 @@
       "Planta",
       "Verí"
     ]
+  },
+  {
+    "nom": "Chikorita",
+    "baseName": "Chikorita",
+    "forma": "",
+    "dex": 152,
+    "pokeapiId": 152,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Agitada",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Planta"
+    ]
   }
 ]
