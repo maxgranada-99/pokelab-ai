@@ -775,5 +775,26 @@
       "Verí",
       "Drac"
     ]
+  },
+  {
+    "nom": "Tepig",
+    "baseName": "Tepig",
+    "forma": "",
+    "dex": 498,
+    "pokeapiId": 498,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Alegre",
+    "rol": "",
+    "moviments": [
+      "Envite ígnio",
+      "Derribo",
+      "Foco energía",
+      "Lanzallamas"
+    ],
+    "notes": "",
+    "tipus": [
+      "Foc"
+    ]
   }
 ]
