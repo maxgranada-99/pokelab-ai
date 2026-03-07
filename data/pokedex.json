@@ -1042,5 +1042,22 @@
       "Planta",
       "Verí"
     ]
+  },
+  {
+    "nom": "Ivysaur",
+    "baseName": "Ivysaur",
+    "forma": "",
+    "dex": 2,
+    "pokeapiId": 2,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Agitada",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Planta",
+      "Verí"
+    ]
   }
 ]
