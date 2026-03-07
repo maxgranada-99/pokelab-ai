@@ -993,5 +993,21 @@
     "moviments": [],
     "notes": "",
     "tipus": []
+  },
+  {
+    "nom": "Xerneas",
+    "baseName": "Xerneas",
+    "forma": "",
+    "dex": 716,
+    "pokeapiId": 716,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Ingenua",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Fada"
+    ]
   }
 ]
