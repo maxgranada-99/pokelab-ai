@@ -847,5 +847,21 @@
       "Lluita",
       "Sinistre"
     ]
+  },
+  {
+    "nom": "Raichu",
+    "baseName": "Raichu",
+    "forma": "",
+    "dex": 26,
+    "pokeapiId": 26,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Alocada",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Elèctric"
+    ]
   }
 ]
