@@ -732,5 +732,26 @@
     "tipus": [
       "Terra"
     ]
+  },
+  {
+    "nom": "Sylveon",
+    "baseName": "Sylveon",
+    "forma": "",
+    "dex": 700,
+    "pokeapiId": 700,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Osada",
+    "rol": "",
+    "moviments": [
+      "Voz cautivadora",
+      "Ataque rápido",
+      "Protección",
+      "Cola férrea"
+    ],
+    "notes": "",
+    "tipus": [
+      "Fada"
+    ]
   }
 ]
