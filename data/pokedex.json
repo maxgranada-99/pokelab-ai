@@ -963,5 +963,21 @@
       "Acer",
       "Roca"
     ]
+  },
+  {
+    "nom": "Totodile",
+    "baseName": "Totodile",
+    "forma": "",
+    "dex": 158,
+    "pokeapiId": 158,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Serena",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Aigua"
+    ]
   }
 ]
