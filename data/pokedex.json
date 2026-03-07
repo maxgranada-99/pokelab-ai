@@ -1076,5 +1076,22 @@
       "Planta",
       "Verí"
     ]
+  },
+  {
+    "nom": "Gardevoir",
+    "baseName": "Gardevoir",
+    "forma": "",
+    "dex": 282,
+    "pokeapiId": 282,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Huraña",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Psíquic",
+      "Fada"
+    ]
   }
 ]
