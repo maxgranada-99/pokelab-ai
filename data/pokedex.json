@@ -667,5 +667,27 @@
       "Drac",
       "Terra"
     ]
+  },
+  {
+    "nom": "Gabite",
+    "baseName": "Gabite",
+    "forma": "",
+    "dex": 444,
+    "pokeapiId": 444,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Rara",
+    "rol": "",
+    "moviments": [
+      "Terratemblor (terra)",
+      "Dragoaliento (drac)",
+      "Placaje (normal)",
+      "Bucle arena (terra)"
+    ],
+    "notes": "",
+    "tipus": [
+      "Drac",
+      "Terra"
+    ]
   }
 ]
