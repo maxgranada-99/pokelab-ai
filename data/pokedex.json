@@ -1025,5 +1025,22 @@
     "tipus": [
       "Normal"
     ]
+  },
+  {
+    "nom": "Bulbasaur",
+    "baseName": "Bulbasaur",
+    "forma": "",
+    "dex": 1,
+    "pokeapiId": 1,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Agitada",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Planta",
+      "Verí"
+    ]
   }
 ]
