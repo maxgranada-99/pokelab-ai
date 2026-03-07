@@ -830,5 +830,22 @@
       "Drac",
       "Terra"
     ]
+  },
+  {
+    "nom": "Pangoro",
+    "baseName": "Pangoro",
+    "forma": "",
+    "dex": 675,
+    "pokeapiId": 675,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Serena",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Lluita",
+      "Sinistre"
+    ]
   }
 ]
