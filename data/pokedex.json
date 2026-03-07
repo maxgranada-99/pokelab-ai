@@ -912,5 +912,22 @@
     "tipus": [
       "Planta"
     ]
+  },
+  {
+    "nom": "Drampa",
+    "baseName": "Drampa",
+    "forma": "",
+    "dex": 780,
+    "pokeapiId": 780,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Plácida",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Normal",
+      "Drac"
+    ]
   }
 ]
