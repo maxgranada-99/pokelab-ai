@@ -929,5 +929,22 @@
       "Normal",
       "Drac"
     ]
+  },
+  {
+    "nom": "Gallade",
+    "baseName": "Gallade",
+    "forma": "",
+    "dex": 475,
+    "pokeapiId": 475,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Rara",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Psíquic",
+      "Lluita"
+    ]
   }
 ]
