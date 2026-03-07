@@ -612,5 +612,22 @@
       "Lluita",
       "Acer"
     ]
+  },
+  {
+    "nom": "Malamar",
+    "baseName": "Malamar",
+    "forma": "",
+    "dex": 687,
+    "pokeapiId": 687,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Dócil",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Sinistre",
+      "Psíquic"
+    ]
   }
 ]
