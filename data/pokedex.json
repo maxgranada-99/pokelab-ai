@@ -946,5 +946,22 @@
       "Psíquic",
       "Lluita"
     ]
+  },
+  {
+    "nom": "Aggron",
+    "baseName": "Aggron",
+    "forma": "",
+    "dex": 306,
+    "pokeapiId": 306,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Fuerte",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Acer",
+      "Roca"
+    ]
   }
 ]
