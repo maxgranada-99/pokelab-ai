@@ -796,5 +796,22 @@
     "tipus": [
       "Foc"
     ]
+  },
+  {
+    "nom": "Scrafty",
+    "baseName": "Scrafty",
+    "forma": "",
+    "dex": 560,
+    "pokeapiId": 560,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Afable",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Sinistre",
+      "Lluita"
+    ]
   }
 ]
