@@ -1093,5 +1093,22 @@
       "Psíquic",
       "Fada"
     ]
+  },
+  {
+    "nom": "Raichu",
+    "baseName": "Raichu",
+    "forma": "Alola",
+    "dex": 26,
+    "pokeapiId": 10100,
+    "regio": "Alola",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Alegre",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Elèctric",
+      "Psíquic"
+    ]
   }
 ]
