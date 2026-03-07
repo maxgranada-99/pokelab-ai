@@ -813,5 +813,22 @@
       "Sinistre",
       "Lluita"
     ]
+  },
+  {
+    "nom": "Garchomp",
+    "baseName": "Garchomp",
+    "forma": "",
+    "dex": 445,
+    "pokeapiId": 445,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Rara",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Drac",
+      "Terra"
+    ]
   }
 ]
