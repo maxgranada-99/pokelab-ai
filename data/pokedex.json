@@ -863,5 +863,21 @@
     "tipus": [
       "Elèctric"
     ]
+  },
+  {
+    "nom": "Squirtle",
+    "baseName": "Squirtle",
+    "forma": "",
+    "dex": 7,
+    "pokeapiId": 7,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Grosera",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Aigua"
+    ]
   }
 ]
