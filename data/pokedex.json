@@ -711,5 +711,26 @@
       "Acer",
       "Fada"
     ]
+  },
+  {
+    "nom": "Hippowdon",
+    "baseName": "Hippowdon",
+    "forma": "",
+    "dex": 450,
+    "pokeapiId": 450,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Grosera",
+    "rol": "",
+    "moviments": [
+      "Doble fio",
+      "Terremoto",
+      "Rugido",
+      "Cuerpo pesado"
+    ],
+    "notes": "",
+    "tipus": [
+      "Terra"
+    ]
   }
 ]
