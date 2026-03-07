@@ -689,5 +689,27 @@
       "Drac",
       "Terra"
     ]
+  },
+  {
+    "nom": "Klefki",
+    "baseName": "Klefki",
+    "forma": "",
+    "dex": 707,
+    "pokeapiId": 707,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Floja",
+    "rol": "",
+    "moviments": [
+      "Psíquico",
+      "Brillo mágico",
+      "Cañón resplandor",
+      "Carantoña"
+    ],
+    "notes": "",
+    "tipus": [
+      "Acer",
+      "Fada"
+    ]
   }
 ]
