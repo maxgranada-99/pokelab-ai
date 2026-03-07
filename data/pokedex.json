@@ -979,5 +979,19 @@
     "tipus": [
       "Aigua"
     ]
+  },
+  {
+    "nom": "Meowstic",
+    "baseName": "Meowstic",
+    "forma": "",
+    "dex": 678,
+    "pokeapiId": null,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Amable",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": []
   }
 ]
