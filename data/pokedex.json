@@ -629,5 +629,21 @@
       "Sinistre",
       "Psíquic"
     ]
+  },
+  {
+    "nom": "Florges",
+    "baseName": "Florges",
+    "forma": "",
+    "dex": 671,
+    "pokeapiId": 671,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Serena",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Fada"
+    ]
   }
 ]
