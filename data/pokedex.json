@@ -753,5 +753,27 @@
     "tipus": [
       "Fada"
     ]
+  },
+  {
+    "nom": "Dragalge",
+    "baseName": "Dragalge",
+    "forma": "",
+    "dex": 691,
+    "pokeapiId": 691,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Alocada",
+    "rol": "",
+    "moviments": [
+      "Onda tóxica",
+      "Hidrobomba",
+      "Pulso dragón",
+      "Bomba lodo"
+    ],
+    "notes": "",
+    "tipus": [
+      "Verí",
+      "Drac"
+    ]
   }
 ]
