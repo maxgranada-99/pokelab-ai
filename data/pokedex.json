@@ -1009,5 +1009,21 @@
     "tipus": [
       "Fada"
     ]
+  },
+  {
+    "nom": "Eevee",
+    "baseName": "Eevee",
+    "forma": "",
+    "dex": 133,
+    "pokeapiId": 133,
+    "regio": "Base",
+    "joc": "Leyendas Pokémon:",
+    "naturalesa": "Seria",
+    "rol": "",
+    "moviments": [],
+    "notes": "",
+    "tipus": [
+      "Normal"
+    ]
   }
 ]
